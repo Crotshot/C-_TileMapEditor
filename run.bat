@@ -1,4 +1,4 @@
 @echo off
 pushd build
-main
+prog
 popd

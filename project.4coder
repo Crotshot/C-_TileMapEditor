@@ -1,6 +1,6 @@
 version(1);
 
-project_name = "Banana";
+project_name = "Tile Map Editor";
 
 patterns = {
 	"*.c",
