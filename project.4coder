@@ -7,6 +7,7 @@ patterns = {
 	"*.cpp",
 	"*.ds",
 	"*.h",
+	"*.hpp",
 	"*.bat",
 	"*.sh",
 	"*.4coder",
