@@ -1,4 +1,4 @@
 @echo off
-pushd build
+pushd source
 prog
 popd

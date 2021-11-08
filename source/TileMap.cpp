@@ -1,7 +1,7 @@
 #include "TileMap.hpp"
 
 
-bool TileMap::load(MapData mapData){
+bool TileMap::load(mapData mapData){
     this->load(mapData.name_, mapData.tileSize_, mapData.tiles_, mapData.width_, mapData.height_);
 }
 
