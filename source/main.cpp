@@ -13,7 +13,7 @@ int main(){
     
     //Font Setup
     sf::Font F_alagard;
-    if (!F_alagard.loadFromFile("Fonts/alagard.ttf")){}
+    if (!F_alagard.loadFromFile("Fonts/alagard.ttf")){std::cout << "Failed to load alagard.ttf" << std::endl; return -99;}
     sf::Text textDTime;
     textDTime.setFont(F_alagard);
     textDTime.setCharacterSize(16);
@@ -26,6 +26,11 @@ int main(){
     //TextBox variables
     sf::Vector2i tilePixels;
     std::string tileMapName, filename;
+    sf::Texture textBoxTexture;
+    if (!textBoxTexture.loadFromFile("Textures/TextBox.png")){std::cout << "Failed to load TextBox.png" << std::endl; return -99;}
+    
+    sf::Texture* textBoxTexturePtr = &textBoxTexture;
+    TextBox inputOne = TextBox(200, 200,F_alagard,textBoxTexturePtr);
     
     bool mouseDown = false; //Used to prevent 1 mouse click from continuely inputing
     bool inFocus = true; //Used to stop code when window is not in focus
@@ -79,6 +84,9 @@ int main(){
         //Press enter to submit input
         
         window.clear(sf::Color::Black);
+        
+        window.draw(inputOne.getBackground());
+        window.draw(inputOne.getText());
         window.draw(textDTime);
         window.display();
     }

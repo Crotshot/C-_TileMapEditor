@@ -1,14 +1,22 @@
-#include <SFML/Graphics.hpp>
+#ifndef TextBox_hpp
+#define TextBox_hpp
 
-class TextBox:
+#include <SFML/Graphics.hpp>
+#include <vector>
+
+class TextBox
 {
-    public:
-    TextBox(sf::Vectot2i pos, sf::Vectot2i dime,sf::Font font, sf::Sprite sprite);
-    
-    sf::Sprite textboxBackground;
-    sf::Text boxText;
+    private:
     bool editing;//Whether or not the text box is being edited
-    sf::Vector2i position;//Position of Box
-    sf::Vector2i dimensions;//Width and Height of textBox
+    sf::Text boxText;
+    sf::RectangleShape textBoxBackground;
+    
+    public:
+    TextBox(sf::Vector2i pos,sf::Font font, sf::Texture texture);
+    TextBox(int posX, int posY, sf::Font font, sf::Texture texture);
     bool CheckInput(sf::Vector2i inputPos);
+    void EditText();
+    sf::RectangleShape getBackground();
+    sf::Text getText();
 };
+#endif

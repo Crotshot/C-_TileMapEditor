@@ -1,26 +1,43 @@
 #include "TextBox.hpp"
 
-TextBox::TextBox(sf::Vector2i pos,
-                 sf::Vector2i dime,
-                 sf::Font font,
-                 sf::Sprite sprite){
+TextBox::TextBox(sf::Vector2i pos, sf::Font font, sf::Texture* texture){
     boxText.setFont(font);
-    textboxBackground = sprite;
-    textboxBackground.setPosition(pos.x,pos.y);
-    textboxBackground.Resize(dime.x, dime.y);
+    textBoxBackground.setTexture(texture, true);
+    textBoxBackground.setPosition(pos.x,pos.y);
     boxText.setPosition(pos.x, pos.y);
-    editing =false;
+    editing = false;
+}
+
+TextBox::TextBox(int posX, int posY, sf::Font font, sf::Texture* texture){
+    boxText.setFont(font);
+    textBoxBackground.setTexture(texture, true);
+    textBoxBackground.setPosition(posX,posY);
+    boxText.setPosition(posX, posY);
+    editing = false;
 }
 
 //Checks if the input mouse position is within the TextBox
 bool TextBox::CheckInput(sf::Vector2i inputPos){
-    if(inputPos.x > position.x + dimensions.x)
+    if(inputPos.x > textBoxBackground.getPosition().x + textBoxBackground.getSize().x)
         return false;
-    else if(inputPos.x < position.x)
+    else if(inputPos.x < textBoxBackground.getPosition().x)
         return false;
-    else if(inputPos.y > position.y + dimensions.y)
+    else if(inputPos.y > textBoxBackground.getPosition().y + textBoxBackground.getSize().y)
         return false;
-    else if(inputPos.y < position.y)
+    else if(inputPos.y < textBoxBackground.getPosition().y)
         return false;
-    return true
+    return true;
+}
+
+void TextBox::EditText(){
+    if(!editing)
+        return;
+}
+
+sf::RectangleShape TextBox::getBackground(){
+    return textBoxBackground;
+}
+
+sf::Text TextBox::getText(){
+    return boxText;
 }
