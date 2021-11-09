@@ -4,10 +4,11 @@ TextBox::TextBox(){
     //Default Constructor
 }
 
-TextBox::TextBox(TextBox &textBox,int w, int h){
-    sf::Texture textBoxTexture;
+TextBox::TextBox(TextBox &textBox,int w, int h, bool canEdit){
     this->width = w;
     this->height = h;
+    this->editable = canEdit;
+    sf::Texture textBoxTexture;
     if (!textBoxTexture.loadFromFile("Textures/TextBox.png", sf::IntRect(0, 0, this->width, this->height))){
         //std::cout << "Failed to load TextBox.png" << std::endl;
     }
@@ -28,7 +29,7 @@ void TextBox::GenerateTextBox(int posX, int posY, int charSize, sf::Color col){
     boxText.setCharacterSize(charSize);
     boxText.setFillColor(col);
     boxText.setPosition(posX + int(charSize/3), posY);
-    boxText.setString("Testeru ");
+    boxText.setString("Testeru");
     
     //Set up Sprite
     textBoxSprite.setTexture(boxTexture);
@@ -40,7 +41,7 @@ void TextBox::GenerateTextBox(int posX, int posY, int charSize, sf::Color col){
 }
 
 //Checks if the input mouse position is within the TextBox
-bool TextBox::CheckInput(sf::Vector2i inputPos){
+bool TextBox::CheckInput(sf::Vector2f inputPos){
     if(inputPos.x > textBoxSprite.getPosition().x + width)
         return false;
     else if(inputPos.x < textBoxSprite.getPosition().x)
@@ -49,12 +50,14 @@ bool TextBox::CheckInput(sf::Vector2i inputPos){
         return false;
     else if(inputPos.y < textBoxSprite.getPosition().y)
         return false;
+    editing = true;
     return true;
 }
 
-void TextBox::EditText(){
-    if(!editing)
+void TextBox::EditText(std::string str){
+    if(!editing or !editable)
         return;
+    boxText.setString(str);
 }
 
 sf::Sprite TextBox::getSprite(){
