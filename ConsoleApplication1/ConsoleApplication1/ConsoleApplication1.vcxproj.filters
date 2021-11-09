@@ -18,21 +18,21 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Crotty%27s PC\source\repos\ConsoleApplication1\ConsoleApplication1\TileMap.cpp">
+    <ClCompile Include="TextBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Crotty%27s PC\source\repos\ConsoleApplication1\ConsoleApplication1\TextBox.cpp">
+    <ClCompile Include="TileMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Crotty%27s PC\source\repos\ConsoleApplication1\ConsoleApplication1\TileMap.hpp">
+    <ClInclude Include="json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Crotty%27s PC\source\repos\ConsoleApplication1\ConsoleApplication1\TextBox.hpp">
+    <ClInclude Include="TextBox.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Crotty%27s PC\source\repos\ConsoleApplication1\ConsoleApplication1\json.hpp">
+    <ClInclude Include="TileMap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

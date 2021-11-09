@@ -156,14 +156,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Crotty%27s PC\source\repos\ConsoleApplication1\ConsoleApplication1\TextBox.cpp" />
-    <ClCompile Include="..\..\..\..\..\Crotty%27s PC\source\repos\ConsoleApplication1\ConsoleApplication1\TileMap.cpp" />
+    <ClCompile Include="TextBox.cpp">
+      <FileType>CppClass</FileType>
+    </ClCompile>
+    <ClCompile Include="TileMap.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Crotty%27s PC\source\repos\ConsoleApplication1\ConsoleApplication1\json.hpp" />
-    <ClInclude Include="..\..\..\..\..\Crotty%27s PC\source\repos\ConsoleApplication1\ConsoleApplication1\TextBox.hpp" />
-    <ClInclude Include="..\..\..\..\..\Crotty%27s PC\source\repos\ConsoleApplication1\ConsoleApplication1\TileMap.hpp" />
+    <ClInclude Include="json.hpp" />
+    <ClInclude Include="TextBox.hpp" />
+    <ClInclude Include="TileMap.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
