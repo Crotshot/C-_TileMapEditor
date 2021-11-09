@@ -1,28 +1,53 @@
 #include "TextBox.hpp"
 
-TextBox::TextBox(sf::Vector2i pos, sf::Font font, int charSize, sf::Color color, sf::Texture* texture){
-    TextBox(pos.x, pos.y, font, charSize, color, texture);
+TextBox::TextBox(){
+    //Default Constructor
 }
 
-TextBox::TextBox(int posX, int posY, sf::Font font, int charSize, sf::Color color, sf::Texture* texture){
-    this->boxText.setFont(font);
-    this->boxText.setCharacterSize(charSize);
-    this->boxText.setFillColor(color);
-    this->textBoxBackground.setTexture(texture, true);
-    this->textBoxBackground.setPosition(posX,posY);
-    this->boxText.setPosition(posX, posY);
-    this->editing = false;
+TextBox::TextBox(TextBox &textBox,int w, int h){
+    sf::Texture textBoxTexture;
+    this->width = w;
+    this->height = h;
+    if (!textBoxTexture.loadFromFile("Textures/TextBox.png", sf::IntRect(0, 0, this->width, this->height))){
+        //std::cout << "Failed to load TextBox.png" << std::endl;
+    }
+    else
+        this->boxTexture = textBoxTexture;
+    
+    sf::Font F_alagard;
+    if (!F_alagard.loadFromFile("Fonts/alagard.ttf")){
+        //std::cout << "Failed to load alagard.ttf" << std::endl;
+    }
+    else
+        this->boxFont = F_alagard;
+}
+
+void TextBox::GenerateTextBox(int posX, int posY, int charSize, sf::Color col){
+    //Set up Text
+    boxText.setFont(boxFont);
+    boxText.setCharacterSize(charSize);
+    boxText.setFillColor(col);
+    boxText.setPosition(posX + int(charSize/3), posY);
+    boxText.setString("Testeru ");
+    
+    //Set up Sprite
+    textBoxSprite.setTexture(boxTexture);
+    textBoxSprite.setPosition(posX,posY);
+    //textBoxSprite.setColor(sf::Color(255, 255, 255, 255));
+    
+    //Value used when box is clicked to enable editing
+    editing = false;
 }
 
 //Checks if the input mouse position is within the TextBox
 bool TextBox::CheckInput(sf::Vector2i inputPos){
-    if(inputPos.x > textBoxBackground.getPosition().x + textBoxBackground.getSize().x)
+    if(inputPos.x > textBoxSprite.getPosition().x + width)
         return false;
-    else if(inputPos.x < textBoxBackground.getPosition().x)
+    else if(inputPos.x < textBoxSprite.getPosition().x)
         return false;
-    else if(inputPos.y > textBoxBackground.getPosition().y + textBoxBackground.getSize().y)
+    else if(inputPos.y > textBoxSprite.getPosition().y + height)
         return false;
-    else if(inputPos.y < textBoxBackground.getPosition().y)
+    else if(inputPos.y < textBoxSprite.getPosition().y)
         return false;
     return true;
 }
@@ -32,14 +57,14 @@ void TextBox::EditText(){
         return;
 }
 
-sf::RectangleShape TextBox::getBackground(){
-    return textBoxBackground;
+sf::Sprite TextBox::getSprite(){
+    return textBoxSprite;
 }
 
-void TextBox::setText(std::string& text){
-    this->boxText.setString(text);
+void TextBox::setText(std::string text){
+    boxText.setString(text);
 }
 
 sf::Text TextBox::getText(){
-    return this->boxText; //why dot? .?
+    return boxText;
 }

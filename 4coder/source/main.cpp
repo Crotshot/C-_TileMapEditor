@@ -23,17 +23,48 @@ int main(){
     sf::Time time;
     sf::Clock clock;
     
-    //TextBox variables
+    
     sf::Vector2i tilePixels;
     std::string tileMapName, filename;
-    sf::Texture textBoxTexture;
-    if (!textBoxTexture.loadFromFile("Textures/TextBox.png")){std::cout << "Failed to load TextBox.png" << std::endl; return -99;}
     
-    sf::Texture* textBoxTexturePtr = &textBoxTexture;
-    TextBox inputOne = TextBox(200, 200,F_alagard, 16, sf::Color::Green ,textBoxTexturePtr);
+    //TextBox vars
     
-    std::string editable = "This is an editable string";
-    inputOne.setText(editable);
+    
+    //---------------------------------------------------------
+    //Need boxes for tileSize(x and y), mapSize(x and y)
+    //File name and map name
+    TextBox* fileName = new TextBox();
+    fileName= new TextBox(*fileName, 122, 33);
+    fileName->GenerateTextBox(20,20, 26, sf::Color::Black);
+    
+    TextBox* mapName = new TextBox();
+    mapName= new TextBox(*mapName, 122, 33);
+    mapName->GenerateTextBox(20,70, 26, sf::Color::Black);
+    
+    TextBox* mapSizeX = new TextBox();
+    mapSizeX= new TextBox(*mapSizeX, 61, 33);
+    mapSizeX->GenerateTextBox(20,120, 26, sf::Color::Black);
+    
+    TextBox* mapSizeY = new TextBox();
+    mapSizeY= new TextBox(*mapSizeY, 61, 33);
+    mapSizeY->GenerateTextBox(81,120, 26, sf::Color::Black);
+    
+    TextBox* tileSizeX = new TextBox();
+    tileSizeX= new TextBox(*mapSizeX, 61, 33);
+    tileSizeX->GenerateTextBox(20,170, 26, sf::Color::Black);
+    
+    TextBox* tileSizeY = new TextBox();
+    tileSizeY= new TextBox(*tileSizeY, 61, 33);
+    tileSizeY->GenerateTextBox(81,170, 26, sf::Color::Black);
+    
+    TextBox* textBoxes[6];
+    textBoxes[0] = fileName;
+    textBoxes[0] = mapName;
+    textBoxes[0] = mapSizeX;
+    textBoxes[0] = mapSizeY;
+    textBoxes[0] = tileSizeX;
+    textBoxes[0] = tileSizeY;
+    //--------------------------------------------------------
     
     bool mouseDown = false; //Used to prevent 1 mouse click from continuely inputing
     bool inFocus = true; //Used to stop code when window is not in focus
@@ -87,10 +118,32 @@ int main(){
         //Press enter to submit input
         
         window.clear(sf::Color::Black);
+        /*
+        window.draw(fileName->getSprite());
+        window.draw(fileName->getText());
         
-        window.draw(inputOne.getBackground());
-        window.draw(inputOne.getText());
+        window.draw(mapName->getSprite());
+        window.draw(mapName->getText());
+        
+        window.draw(mapSizeX->getSprite());
+        window.draw(mapSizeX->getText());
+        
+        window.draw(mapSizeY->getSprite());
+        window.draw(mapSizeY->getText());
+        
+        
+        window.draw(tileSizeX->getSprite());
+        window.draw(tileSizeX->getText());
+        
+        window.draw(tileSizeY->getSprite());
+        window.draw(tileSizeY->getText());
+        */
+        
+        for(int i = 0; i < sizeof(textBoxes); i++){
+            
+        }
         window.draw(textDTime);
+        
         window.display();
     }
     
