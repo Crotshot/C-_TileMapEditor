@@ -30,7 +30,10 @@ int main(){
     if (!textBoxTexture.loadFromFile("Textures/TextBox.png")){std::cout << "Failed to load TextBox.png" << std::endl; return -99;}
     
     sf::Texture* textBoxTexturePtr = &textBoxTexture;
-    TextBox inputOne = TextBox(200, 200,F_alagard,textBoxTexturePtr);
+    TextBox inputOne = TextBox(200, 200,F_alagard, 16, sf::Color::Green ,textBoxTexturePtr);
+    
+    std::string editable = "This is an editable string";
+    inputOne.setText(editable);
     
     bool mouseDown = false; //Used to prevent 1 mouse click from continuely inputing
     bool inFocus = true; //Used to stop code when window is not in focus
