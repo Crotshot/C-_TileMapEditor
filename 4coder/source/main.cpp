@@ -19,12 +19,12 @@ void Load(){
     std::cout << "Loading . . ." << std::endl;
 }
 
-void editText(std::vector<TextBox*> textBoxes, std::string str){
+void editText(std::vector<TextBox*> textBoxes){
     for(TextBox* tB : textBoxes){
-        tB->EditText(str);
+        tB->EditText();
     }
+    
 }
-
 int main(){
     sf::RenderWindow window(sf::VideoMode(800, 600), "TileMap Editor");
     sf::Vector2f mouseScreenPosition, lastMousePosition; //Mouse in currentPosition and lastPosition
@@ -75,7 +75,7 @@ int main(){
     tileSizeY= new TextBox(*tileSizeY, 61, 33, true);
     tileSizeY->GenerateTextBox(81,170, 26, sf::Color::Black);
     
-    
+    /*
     //Test for seeing if boxes are display correct text--
     fileName->setText("Cool_Level_O1");
     mapName->setText("Forest_Fire.png");
@@ -83,6 +83,7 @@ int main(){
     mapSizeY->setText("24");
     tileSizeX->setText("16");
     tileSizeY->setText("12");
+*/
     //--------------------------------------------------
     std::vector<TextBox*> textBoxes; //Vector of textBoxes for iterating for when getting input and rendering
     textBoxes.push_back(fileName);
@@ -118,7 +119,10 @@ int main(){
     bool mouseDown = false; //Used to prevent 1 mouse click from continuely inputing
     bool inFocus = true; //Used to stop code when window is not in focus
     bool editingText = false;
-    std::string editString;
+    
+    
+    //TEXT BOX STRING THAT IS EDITED
+    std::string* editString;
     
     while(window.isOpen()){
         sf::Time dt= clock.restart();
@@ -144,6 +148,7 @@ int main(){
             
             if(!inFocus)
                 continue;
+            //Mouse movement caounts as event so it randomly types text
             if(event.type == sf::Event::MouseMoved)
                 continue;
             if(!editingText)
@@ -151,9 +156,9 @@ int main(){
             
             if(event.key.code == sf::Keyboard::BackSpace)
             {
-                if(editString.length() > 0){
-                    editString.erase( editString.length() - 1 );
-                    editText(textBoxes,editString);
+                if((*editString).length() > 0){
+                    (*editString).erase( (*editString).length() - 1 );
+                    editText(textBoxes);
                 }
             }
             else
@@ -164,13 +169,13 @@ int main(){
                    event.text.unicode == (char)' '
                    )
                 {
-                    editString += (char)event.text.unicode;
-                    editText(textBoxes,editString);
+                    *editString += (char)event.text.unicode;
+                    editText(textBoxes);
                 }
             }
             if(event.key.code == sf::Keyboard::Space){
-                editString += (char)' ';
-                editText(textBoxes,editString);
+                *editString += (char)' ';
+                editText(textBoxes);
             }
         }
         //If not in focus do nothing
@@ -202,8 +207,8 @@ int main(){
                     if(tB->CheckInput(mouseScreenPosition)){
                         std::cout << "Editing text box"<< std::endl;
                         editingText = true;
-                        editString = "";
-                        tB->EditText("");
+                        editString = tB->getTextString();
+                        tB->EditText();
                         //editBox = tB;
                         break;
                     }

@@ -11,10 +11,11 @@ class TextBox
     TextBox(TextBox &textBox,int w,int h, bool canEdit);
     void GenerateTextBox(int posX, int posY, int charSize, sf::Color col);
     bool CheckInput(sf::Vector2f inputPos);
-    void EditText(std::string str);
+    void EditText();
     sf::Sprite getSprite();
     sf::Text getText();
     void setText(std::string text);
+    std::string* getTextString();
     private:
     sf::Texture boxTexture;
     sf::Font boxFont;
@@ -24,5 +25,6 @@ class TextBox
     int width;
     int height;
     bool editable;
+    std::string textString;
 };
 #endif

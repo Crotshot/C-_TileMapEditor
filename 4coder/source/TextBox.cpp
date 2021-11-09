@@ -8,6 +8,8 @@ TextBox::TextBox(TextBox &textBox,int w, int h, bool canEdit){
     this->width = w;
     this->height = h;
     this->editable = canEdit;
+    this->textString = "";
+    this->boxText.setString(this->textString);
     sf::Texture textBoxTexture;
     if (!textBoxTexture.loadFromFile("Textures/TextBox.png", sf::IntRect(0, 0, this->width, this->height))){
         //std::cout << "Failed to load TextBox.png" << std::endl;
@@ -29,7 +31,6 @@ void TextBox::GenerateTextBox(int posX, int posY, int charSize, sf::Color col){
     boxText.setCharacterSize(charSize);
     boxText.setFillColor(col);
     boxText.setPosition(posX + int(charSize/3), posY);
-    boxText.setString("Testeru");
     
     //Set up Sprite
     textBoxSprite.setTexture(boxTexture);
@@ -54,10 +55,11 @@ bool TextBox::CheckInput(sf::Vector2f inputPos){
     return true;
 }
 
-void TextBox::EditText(std::string str){
+void TextBox::EditText(){
     if(!editing or !editable)
         return;
-    boxText.setString(str);
+    
+    boxText.setString(textString);
 }
 
 sf::Sprite TextBox::getSprite(){
@@ -70,4 +72,8 @@ void TextBox::setText(std::string text){
 
 sf::Text TextBox::getText(){
     return boxText;
+}
+
+std::string* TextBox::getTextString(){
+    return &textString;
 }
