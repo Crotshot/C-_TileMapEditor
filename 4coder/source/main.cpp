@@ -3,20 +3,56 @@
 #include <fstream>
 #include <time.h>
 #include <vector>
+#include <sstream>
 
 #include "TextBox.hpp"
 #include "TileMap.hpp"
 #include "json.hpp"
 
+//
+std::string tileMapName, spriteSheetName;
+unsigned int ssRows, ssColumns, tileWidth, tileHeight;
 
+std::ifstream inputMap;
+std::ofstream outMap;
+sf::Texture spriteSheet;
 
-//Empty mehtods for save ad load -> CHANGE LATER
+//In save and load no need to type .json or .png as it will auto be appendened to the end
 void Save(){
     std::cout << "Saving . . ." << std::endl;
 }
 
 void Load(){
-    std::cout << "Loading . . ." << std::endl;
+    
+    if(tileMapName.length() > 0){
+        std::cout << "Loading "<< tileMapName <<".json" << std::endl;
+        inputMap = std::ifstream("TileMaps/" + tileMapName + ".json");
+        outMap = std::ofstream("TileMaps/" + tileMapName + ".json");
+        
+        if (!outMap.is_open()) {
+            std::cout << "Failed to open " << tileMapName << ".json, maybe it does not exist?" << '\n';
+        }
+        else{
+            std::cout << "Opened " << tileMapName << ".json, successfully!" << '\n';
+        }
+    }
+    else
+        std::cout << "No tile map name entered, please enter a tilemap name." << std::endl;
+    
+    if(spriteSheetName.length() > 0){
+        std::cout << "Loading "<< spriteSheetName <<".png" << std::endl;
+        if(!spriteSheet.loadFromFile("SpriteSheets/" + spriteSheetName + ".png")){
+            std::cout << "Failed to load " << spriteSheetName << ".png, maybe it does not exist?" << std::endl;
+        }
+        else{
+            std::cout << spriteSheetName << ".png loaded successfully!" << std::endl;
+            
+        }
+        
+    }
+    else
+        std::cout << "No sprite Sheet name entered, please enter a sprite sheet name." << std::endl;
+    
 }
 
 void editText(std::vector<TextBox*> textBoxes){
@@ -25,6 +61,7 @@ void editText(std::vector<TextBox*> textBoxes){
     }
     
 }
+
 int main(){
     sf::RenderWindow window(sf::VideoMode(800, 600), "TileMap Editor");
     sf::Vector2f mouseScreenPosition, lastMousePosition; //Mouse in currentPosition and lastPosition
@@ -41,23 +78,16 @@ int main(){
     sf::Time time;
     sf::Clock clock;
     
-    
-    sf::Vector2i tilePixels;
-    std::string tileMapName, filename;
-    
-    //TextBox vars
-    
-    
     //---------------------------------------------------------
     //Need boxes for tileSize(x and y), mapSize(x and y)
     //File name and map name
-    TextBox* fileName = new TextBox();
-    fileName= new TextBox(*fileName, 122, 33, true);
-    fileName->GenerateTextBox(20,20, 16, sf::Color::Black);
+    TextBox* jsonBox = new TextBox();
+    jsonBox= new TextBox(*jsonBox, 122, 33, true);
+    jsonBox->GenerateTextBox(20,20, 16, sf::Color::Black);
     
-    TextBox* mapName = new TextBox();
-    mapName= new TextBox(*mapName, 122, 33, true);
-    mapName->GenerateTextBox(20,70, 16, sf::Color::Black);
+    TextBox* spriteSheetBox = new TextBox();
+    spriteSheetBox= new TextBox(*spriteSheetBox, 122, 33, true);
+    spriteSheetBox->GenerateTextBox(20,70, 16, sf::Color::Black);
     
     TextBox* mapSizeX = new TextBox();
     mapSizeX= new TextBox(*mapSizeX, 61, 33, true);
@@ -77,8 +107,8 @@ int main(){
     
     /*
     //Test for seeing if boxes are display correct text--
-    fileName->setText("Cool_Level_O1");
-    mapName->setText("Forest_Fire.png");
+    jsonBox->setText("Cool_Level_O1");
+    spriteSheetBox->setText("Forest_Fire");
     mapSizeX->setText("32");
     mapSizeY->setText("24");
     tileSizeX->setText("16");
@@ -86,8 +116,8 @@ int main(){
 */
     //--------------------------------------------------
     std::vector<TextBox*> textBoxes; //Vector of textBoxes for iterating for when getting input and rendering
-    textBoxes.push_back(fileName);
-    textBoxes.push_back(mapName);
+    textBoxes.push_back(jsonBox);
+    textBoxes.push_back(spriteSheetBox);
     textBoxes.push_back(mapSizeX);
     textBoxes.push_back(mapSizeY);
     textBoxes.push_back(tileSizeX);
@@ -189,6 +219,14 @@ int main(){
                 tB->CheckInput(v);
                 editingText = false;
             }
+            
+            //Set value of inputs
+            //tileMapName, spriteSheetName;
+            //tileRows, tileColumns, tileWidth, tileHeight;
+            tileMapName = *(jsonBox->getTextString());
+            spriteSheetName = *(spriteSheetBox->getTextString());
+            
+            
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
         {
