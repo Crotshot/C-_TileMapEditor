@@ -4,14 +4,14 @@ TextBox::TextBox(){
     //Default Constructor
 }
 
-TextBox::TextBox(TextBox &textBox,int w, int h, bool canEdit){
+TextBox::TextBox(TextBox &textBox,int w, int h, bool canEdit, std::string fileName){
     this->width = w;
     this->height = h;
     this->editable = canEdit;
     this->textString = "";
     this->boxText.setString(this->textString);
     sf::Texture textBoxTexture;
-    if (!textBoxTexture.loadFromFile("Textures/TextBox.png", sf::IntRect(0, 0, this->width, this->height))){
+    if (!textBoxTexture.loadFromFile(fileName, sf::IntRect(0, 0, this->width, this->height))){
         //std::cout << "Failed to load TextBox.png" << std::endl;
     }
     else

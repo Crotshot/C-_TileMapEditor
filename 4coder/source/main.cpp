@@ -12,7 +12,7 @@
 
 //
 std::string tileMapName, spriteSheetName;
-unsigned int ssRows, ssColumns, tileWidth, tileHeight;
+unsigned int ssRows, ssColumns, tilePixelWidth, tilePixelHeight;
 
 std::ifstream inputMap;
 std::ofstream outMap;
@@ -99,8 +99,14 @@ void editText(std::vector<TextBox*> textBoxes){
 }
 
 int main(){
-    sf::RenderWindow window(sf::VideoMode(800, 600), "TileMap Editor");
+    sf::RenderWindow window(sf::VideoMode(900, 600), "TileMap Editor");
     sf::Vector2f mouseScreenPosition, lastMousePosition; //Mouse in currentPosition and lastPosition
+    
+    //Background
+    sf::Texture background;
+    if (!background.loadFromFile("Textures/Background.png")){std::cout << "Failed to Background.png" << std::endl; return -99;}
+    sf::Sprite spriteBackground;
+    spriteBackground.setTexture(background);
     
     //Font Setup
     sf::Font F_alagard;
@@ -118,28 +124,28 @@ int main(){
     //Need boxes for tileSize(x and y), mapSize(x and y)
     //File name and map name
     TextBox* jsonBox = new TextBox();
-    jsonBox= new TextBox(*jsonBox, 122, 33, true);
+    jsonBox= new TextBox(*jsonBox, 122, 33, true, "Textures/TextBox.png");
     jsonBox->GenerateTextBox(20,20, 16, sf::Color::Black);
     
     TextBox* spriteSheetBox = new TextBox();
-    spriteSheetBox= new TextBox(*spriteSheetBox, 122, 33, true);
-    spriteSheetBox->GenerateTextBox(20,70, 16, sf::Color::Black);
+    spriteSheetBox= new TextBox(*spriteSheetBox, 122, 33, true,"Textures/TextBox.png");
+    spriteSheetBox->GenerateTextBox(157,20, 16, sf::Color::Black);
     
-    TextBox* mapSizeX = new TextBox();
-    mapSizeX= new TextBox(*mapSizeX, 61, 33, true);
-    mapSizeX->GenerateTextBox(20,120, 26, sf::Color::Black);
+    TextBox* tileRows = new TextBox();
+    tileRows = new TextBox(*tileRows, 61, 33, true,"Textures/TextBoxHalf.png");
+    tileRows->GenerateTextBox(20,85, 26, sf::Color::Black);
     
-    TextBox* mapSizeY = new TextBox();
-    mapSizeY= new TextBox(*mapSizeY, 61, 33, true);
-    mapSizeY->GenerateTextBox(81,120, 26, sf::Color::Black);
+    TextBox* tileColumns = new TextBox();
+    tileColumns= new TextBox(*tileColumns, 61, 33, true,"Textures/TextBoxHalf.png");
+    tileColumns->GenerateTextBox(86,85, 26, sf::Color::Black);
     
     TextBox* tileSizeX = new TextBox();
-    tileSizeX= new TextBox(*mapSizeX, 61, 33, true);
-    tileSizeX->GenerateTextBox(20,170, 26, sf::Color::Black);
+    tileSizeX= new TextBox(*tileSizeX, 61, 33, true,"Textures/TextBoxHalf.png");
+    tileSizeX->GenerateTextBox(152,85, 26, sf::Color::Black);
     
     TextBox* tileSizeY = new TextBox();
-    tileSizeY= new TextBox(*tileSizeY, 61, 33, true);
-    tileSizeY->GenerateTextBox(81,170, 26, sf::Color::Black);
+    tileSizeY= new TextBox(*tileSizeY, 61, 33, true,"Textures/TextBoxHalf.png");
+    tileSizeY->GenerateTextBox(218,85, 26, sf::Color::Black);
     
     /*
     //Test for seeing if boxes are display correct text--
@@ -154,8 +160,8 @@ int main(){
     std::vector<TextBox*> textBoxes; //Vector of textBoxes for iterating for when getting input and rendering
     textBoxes.push_back(jsonBox);
     textBoxes.push_back(spriteSheetBox);
-    textBoxes.push_back(mapSizeX);
-    textBoxes.push_back(mapSizeY);
+    textBoxes.push_back(tileRows);
+    textBoxes.push_back(tileColumns);
     textBoxes.push_back(tileSizeX);
     textBoxes.push_back(tileSizeY);
     
@@ -167,12 +173,12 @@ int main(){
     //Can use TextBox as a button when editable is set to false
     
     TextBox* saveButton = new TextBox();
-    saveButton= new TextBox(*saveButton, 99, 33, false);
-    saveButton->GenerateTextBox(32,210, 30, sf::Color::Green);
+    saveButton= new TextBox(*saveButton, 99, 33, false, "Textures/TextBox3Q.png");
+    saveButton->GenerateTextBox(40,150, 30, sf::Color::Green);
     
     TextBox* loadButton = new TextBox();
-    loadButton= new TextBox(*loadButton, 99, 33, false);
-    loadButton->GenerateTextBox(32,260, 30, sf::Color::Green);
+    loadButton= new TextBox(*loadButton, 99, 33, false, "Textures/TextBox3Q.png");
+    loadButton->GenerateTextBox(172,150, 30, sf::Color::Green);
     
     
     saveButton->setText("SAVE");
@@ -256,13 +262,6 @@ int main(){
                 editingText = false;
             }
             
-            //Set value of inputs
-            //tileMapName, spriteSheetName;
-            //tileRows, tileColumns, tileWidth, tileHeight;
-            tileMapName = *(jsonBox->getTextString());
-            spriteSheetName = *(spriteSheetBox->getTextString());
-            
-            
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
         {
@@ -271,6 +270,37 @@ int main(){
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
             if(mouseScreenPosition != lastMousePosition & !mouseDown){
+                
+                //Set value of inputs
+                //jsonBox, spriteSheetBox;
+                //tileRows, tileColumns, tileWidth, tileHeight;
+                
+                //std::string tileMapName, spriteSheetName;
+                //unsigned int ssRows, ssColumns, tilePixelWidth, tilePixelHeight;
+                
+                tileMapName = *(jsonBox->getTextString());
+                spriteSheetName = *(spriteSheetBox->getTextString());
+                if((*(tileRows->getTextString())).length() > 0)
+                    ssRows = std::stoi(*(tileRows->getTextString()));
+                if((*(tileColumns->getTextString())).length() > 0)
+                    ssColumns = std::stoi(*(tileColumns->getTextString()));
+                if((*(tileSizeX->getTextString())).length() > 0)
+                    tilePixelWidth = std::stoi(*(tileSizeX->getTextString()));
+                if((*(tileSizeY->getTextString())).length() > 0)
+                    tilePixelHeight = std::stoi(*(tileSizeY->getTextString()));
+                //TODO
+                
+                std::cout << "Debug------------------------------------------" << std::endl;
+                
+                std::cout << "tileMapName: " <<  tileMapName << ", spriteSheetName: " << spriteSheetName << std::endl;
+                std::cout << "ssRows: " <<  ssRows << ", ssColumns: " << ssColumns << std::endl;
+                std::cout << "tilePixelWidth: " <<  tilePixelWidth << ", tilePixelHeight: " << tilePixelHeight << std::endl;
+                
+                std::cout << "Debug------------------------------------------" << std::endl;
+                
+                
+                
+                
                 std::cout << "Debug: Mouse Position: X->" << mouseScreenPosition.x << ", Y->" << mouseScreenPosition.y << std::endl;
                 lastMousePosition = mouseScreenPosition;
                 textDTime.setPosition(mouseScreenPosition.x, mouseScreenPosition.y);
@@ -305,8 +335,9 @@ int main(){
             mouseDown = false;
         }
         
-        window.clear(sf::Color::Black);
+        window.clear();
         
+        window.draw(spriteBackground);
         
         //Draw all the text Boxses
         for(TextBox* tB : textBoxes){
