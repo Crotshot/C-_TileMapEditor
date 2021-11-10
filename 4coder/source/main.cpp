@@ -4,6 +4,7 @@
 #include <time.h>
 #include <vector>
 #include <sstream>
+#include <stdio.h>
 
 #include "TextBox.hpp"
 #include "TileMap.hpp"
@@ -17,9 +18,44 @@ std::ifstream inputMap;
 std::ofstream outMap;
 sf::Texture spriteSheet;
 
+nlohmann::json j;
+
 //In save and load no need to type .json or .png as it will auto be appendened to the end
 void Save(){
-    std::cout << "Saving . . ." << std::endl;
+    if(tileMapName.length() > 0){
+        std::cout << "Saving "<< tileMapName <<".json" << std::endl;
+        //inputMap = std::ifstream("TileMaps/" + tileMapName + ".json");
+        outMap = std::ofstream("TileMaps/" + tileMapName + ".json");
+        
+        if (!outMap.is_open()) {
+            std::cout << "Failed to save " << tileMapName << ".json" << '\n';
+        }
+        else{
+            //ADD DATA TO THE JSON FILE HER
+            outMap << j;
+            
+            //CHECK IF EMPTY, IF YES DELETE IT
+            outMap.seekp(0, std::ios::end);  
+            if (outMap.tellp() <= 4)
+            {
+                outMap.close();
+                if(remove(("TileMaps/" + tileMapName + ".json").c_str()) == 0){
+                    std::cout << "Failed to save " << tileMapName << ".json, the file was empty" << '\n';
+                }
+                else{
+                    std::cout << "File " << tileMapName << ".json was empty but could not be deleted, it has been saved in TileMaps/" << std::endl;
+                }
+            }
+            else{
+                std::cout << "Saved " << tileMapName << ".json, successfully!" << std::endl;
+            }
+            
+            if(outMap.is_open())
+                outMap.close();
+        }
+    }
+    else
+        std::cout << "No tile map name entered, please enter a tilemap name." << std::endl;
 }
 
 void Load(){
@@ -27,13 +63,14 @@ void Load(){
     if(tileMapName.length() > 0){
         std::cout << "Loading "<< tileMapName <<".json" << std::endl;
         inputMap = std::ifstream("TileMaps/" + tileMapName + ".json");
-        outMap = std::ofstream("TileMaps/" + tileMapName + ".json");
+        //outMap = std::ofstream("TileMaps/" + tileMapName + ".json");
         
-        if (!outMap.is_open()) {
+        if (!inputMap.is_open()) {
             std::cout << "Failed to open " << tileMapName << ".json, maybe it does not exist?" << '\n';
         }
         else{
             std::cout << "Opened " << tileMapName << ".json, successfully!" << '\n';
+            //inputMap << j;
         }
     }
     else
@@ -46,7 +83,6 @@ void Load(){
         }
         else{
             std::cout << spriteSheetName << ".png loaded successfully!" << std::endl;
-            
         }
         
     }
@@ -168,11 +204,11 @@ int main(){
             if (event.type == sf::Event::Closed)
                 window.close();
             else if(event.type == sf::Event::GainedFocus){
-                std::cout << "Gained" << std::endl;
+                std::cout << "Debug: Focus Gained" << std::endl;
                 inFocus = true;
             }
             else if(event.type == sf::Event::LostFocus){
-                std::cout << "Lost" << std::endl;
+                std::cout << "Debug: Focus Lost" << std::endl;
                 inFocus = false;
             }
             
@@ -235,7 +271,7 @@ int main(){
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
             if(mouseScreenPosition != lastMousePosition & !mouseDown){
-                std::cout << mouseScreenPosition.x << ", " << mouseScreenPosition.y << std::endl;
+                std::cout << "Debug: Mouse Position: X->" << mouseScreenPosition.x << ", Y->" << mouseScreenPosition.y << std::endl;
                 lastMousePosition = mouseScreenPosition;
                 textDTime.setPosition(mouseScreenPosition.x, mouseScreenPosition.y);
                 
