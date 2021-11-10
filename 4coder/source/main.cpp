@@ -11,6 +11,10 @@
 #include "json.hpp"
 
 //
+
+const sf::Vector2i paintAreaSize(582,582), paintAreaPosition(310, 10);
+const sf::Vector2i selectAreaSize(282,382), selectAreaPosition(10,210);
+
 std::string tileMapName, spriteSheetName;
 unsigned int ssRows, ssColumns, tilePixelWidth, tilePixelHeight;
 
@@ -262,6 +266,15 @@ int main(){
                 editingText = false;
             }
             
+            
+            std::cout << "Debug------------------------------------------" << std::endl;
+            
+            std::cout << "tileMapName: " <<  tileMapName << ", spriteSheetName: " << spriteSheetName << std::endl;
+            std::cout << "ssRows: " <<  ssRows << ", ssColumns: " << ssColumns << std::endl;
+            std::cout << "tilePixelWidth: " <<  tilePixelWidth << ", tilePixelHeight: " << tilePixelHeight << std::endl;
+            
+            std::cout << "Debug------------------------------------------" << std::endl;
+            
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
         {
@@ -289,18 +302,6 @@ int main(){
                 if((*(tileSizeY->getTextString())).length() > 0)
                     tilePixelHeight = std::stoi(*(tileSizeY->getTextString()));
                 //TODO
-                
-                std::cout << "Debug------------------------------------------" << std::endl;
-                
-                std::cout << "tileMapName: " <<  tileMapName << ", spriteSheetName: " << spriteSheetName << std::endl;
-                std::cout << "ssRows: " <<  ssRows << ", ssColumns: " << ssColumns << std::endl;
-                std::cout << "tilePixelWidth: " <<  tilePixelWidth << ", tilePixelHeight: " << tilePixelHeight << std::endl;
-                
-                std::cout << "Debug------------------------------------------" << std::endl;
-                
-                
-                
-                
                 std::cout << "Debug: Mouse Position: X->" << mouseScreenPosition.x << ", Y->" << mouseScreenPosition.y << std::endl;
                 lastMousePosition = mouseScreenPosition;
                 textDTime.setPosition(mouseScreenPosition.x, mouseScreenPosition.y);
