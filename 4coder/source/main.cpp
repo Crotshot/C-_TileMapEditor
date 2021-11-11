@@ -9,7 +9,7 @@
 #include "TextBox.hpp"
 #include "TileMap.hpp"
 #include "json.hpp"
-
+#include "SensorGrid.hpp"
 //
 
 const sf::Vector2i paintAreaSize(582,582), paintAreaPosition(310, 10);
@@ -23,6 +23,9 @@ std::ofstream outMap;
 sf::Texture spriteSheet;
 
 nlohmann::json j;
+
+SensorGrid* selectionGrid = new SensorGrid();
+SensorGrid* paintingGrid = new SensorGrid();
 
 //In save and load no need to type .json or .png as it will auto be appendened to the end
 void Save(){
@@ -87,6 +90,14 @@ void Load(){
         }
         else{
             std::cout << spriteSheetName << ".png loaded successfully!" << std::endl;
+            
+            //Splice sheet up into little pieces, add them to a list and fit to the selection grid
+            int sheetCols, sheetRows;
+            
+            sheetCols = spriteSheet.getSize().x/tilePixelWidth;
+            sheetRows = spriteSheet.getSize().y/tilePixelHeight;
+            selectionGrid->GenerateSensorGrid(selectAreaPosition.x, selectAreaPosition.y,selectAreaSize.x, selectAreaSize.y, sheetRows, sheetCols, tilePixelWidth, tilePixelHeight);
+            
         }
         
     }
@@ -103,6 +114,31 @@ void editText(std::vector<TextBox*> textBoxes){
 }
 
 int main(){
+    /*///////////////////////////////////////////////
+    j["level"]={
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3,
+        0, 1, 0, 0, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 0, 0,
+        0, 1, 1, 0, 3, 3, 3, 0, 0, 0, 1, 1, 1, 2, 0, 0,
+        0, 0, 1, 0, 3, 0, 2, 2, 0, 0, 1, 1, 1, 1, 2, 0,
+        2, 0, 1, 0, 3, 0, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1,
+        0, 0, 1, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1,
+    };
+    j["tileset"]="SpriteSheets/Simple.png";
+    j["TileSize"]={16,16};
+    j["MapDims"] = {16,8};
+    TileMap* map = new TileMap();
+    const std::string name1 = j["tileset"];
+    sf::Vector2u tileSize1 = sf::Vector2u(j["TileSize"][0],j["TileSize"][1]);
+    std::vector<int> tiles1 = j["level"];
+    unsigned int width1 = j["MapDims"][0];
+    unsigned int height1 = j["MapDims"][1];
+    struct mapData mapDat = mapData(name1, tileSize1,tiles1,width1,height1);
+    if (!map->load(mapDat))
+        return -10;
+    *////////////////////////////////////////////////
+    
     sf::RenderWindow window(sf::VideoMode(900, 600), "TileMap Editor");
     sf::Vector2f mouseScreenPosition, lastMousePosition; //Mouse in currentPosition and lastPosition
     
@@ -283,6 +319,20 @@ int main(){
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
             if(mouseScreenPosition != lastMousePosition & !mouseDown){
+                //---------------------------------------------------
+                //Debugging Sensor Grids
+                
+                sf::Vector2i sGridV= selectionGrid->ClickCheckVector(mouseScreenPosition.x, mouseScreenPosition.y);
+                sf::Vector2i pGridV= paintingGrid->ClickCheckVector(mouseScreenPosition.x, mouseScreenPosition.y);
+                
+                if(sGridV.x != -1){
+                    std::cout << "Touched selectionGrid at pos: (" << mouseScreenPosition.x << ", " << mouseScreenPosition.y << "), the index was " << selectionGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y) << std::endl; 
+                }
+                if(pGridV.x != -1){
+                    std::cout << "Touched paintingGrid at pos: (" << mouseScreenPosition.x << ", " << mouseScreenPosition.y << "), the index was " << paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y) << std::endl;
+                }
+                //---------------------------------------------------
+                
                 
                 //Set value of inputs
                 //jsonBox, spriteSheetBox;
@@ -302,7 +352,7 @@ int main(){
                 if((*(tileSizeY->getTextString())).length() > 0)
                     tilePixelHeight = std::stoi(*(tileSizeY->getTextString()));
                 //TODO
-                std::cout << "Debug: Mouse Position: X->" << mouseScreenPosition.x << ", Y->" << mouseScreenPosition.y << std::endl;
+                //std::cout << "Debug: Mouse Position: X->" << mouseScreenPosition.x << ", Y->" << mouseScreenPosition.y << std::endl;
                 lastMousePosition = mouseScreenPosition;
                 textDTime.setPosition(mouseScreenPosition.x, mouseScreenPosition.y);
                 
@@ -354,6 +404,8 @@ int main(){
         }
         
         window.draw(textDTime);
+        
+        //window.draw(*map);
         
         window.display();
     }

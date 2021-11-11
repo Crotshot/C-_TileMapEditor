@@ -1,6 +1,10 @@
 #include "TileMap.hpp"
 
 
+TileMap::TileMap(){
+    //Def const
+}
+
 bool TileMap::load(mapData mapData){
     this->load(mapData.name_, mapData.tileSize_, mapData.tiles_, mapData.width_, mapData.height_);
 }

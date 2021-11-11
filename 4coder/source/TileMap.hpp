@@ -19,6 +19,7 @@ class TileMap: public sf::Drawable, public sf::Transformable
 {
     public:
     TileMap();
+    //TileMap(TileMap &TileMap);
     
     bool load(mapData mapDat);
     bool load(const std::string& tileset, sf::Vector2u tileSize, std::vector<int>& tiles, unsigned int width, unsigned int height);
