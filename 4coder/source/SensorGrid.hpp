@@ -13,6 +13,8 @@ class SensorGrid
     sf::Vector2i ClickCheckVector(int posX, int posY); //-1 for not on grid, returns top left point of a grid square (x,y)
     //sf::Vector2i ReverseDimension(int index); //Returns top left point of a grid square (x,y)
     
+    float getScale();
+    
     private:
     int posX;
     int posY;

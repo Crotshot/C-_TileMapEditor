@@ -10,7 +10,6 @@
 #include "TileMap.hpp"
 #include "json.hpp"
 #include "SensorGrid.hpp"
-//
 
 const sf::Vector2i paintAreaSize(582,582), paintAreaPosition(310, 10);
 const sf::Vector2i selectAreaSize(282,382), selectAreaPosition(10,210);
@@ -26,6 +25,12 @@ nlohmann::json j;
 
 SensorGrid* selectionGrid = new SensorGrid();
 SensorGrid* paintingGrid = new SensorGrid();
+
+std::vector<sf::Sprite> selectionSprites;
+unsigned int selectedTile, editTileIndex;
+std::vector<int> tileMapData;
+std::vector<sf::Sprite> tileMapVisuals;
+float tileScale;
 
 //In save and load no need to type .json or .png as it will auto be appendened to the end
 void Save(){
@@ -66,16 +71,36 @@ void Save(){
 }
 
 void Load(){
-    
+    //Setting up json and tile map
     if(tileMapName.length() > 0){
         std::cout << "Loading "<< tileMapName <<".json" << std::endl;
         inputMap = std::ifstream("TileMaps/" + tileMapName + ".json");
-        //outMap = std::ofstream("TileMaps/" + tileMapName + ".json");
+        
+        //Set up for anything that is used by both new and loaded tile maps
+        if(ssColumns * tilePixelWidth > ssRows * tilePixelHeight)
+            tileScale = ((float)paintAreaSize.x / (float)ssColumns)/tilePixelWidth;
+        else//Scales the tilemap and keeps it within "bounds"
+            tileScale = ((float)paintAreaSize.y / (float)ssRows)/tilePixelHeight;
+        
+        paintingGrid->GenerateSensorGrid(paintAreaPosition.x, paintAreaPosition.y,paintAreaSize.x, paintAreaSize.y, ssRows, ssColumns, tilePixelWidth, tilePixelHeight);
         
         if (!inputMap.is_open()) {
-            std::cout << "Failed to open " << tileMapName << ".json, maybe it does not exist?" << '\n';
+            std::cout << "File:" << tileMapName << ".json did not exist, making new tilemap" << '\n';
+            //Set up for a new tile map
+            //Black tiles which acts like a rubber, represented by -1 in the tileMapData
+            for( unsigned int y = 0; y < ssRows; y++){
+                for( unsigned int x = 0; x < ssColumns; x++){
+                    tileMapData.push_back(-1);
+                    sf::Sprite t(spriteSheet,sf::IntRect(0,0,tilePixelWidth, tilePixelHeight));
+                    t.setColor(sf::Color::Black);
+                    t.scale(tileScale, tileScale);
+                    t.setPosition(paintAreaPosition.x + x * tileScale, paintAreaPosition.y + y * tileScale);
+                    tileMapVisuals.push_back(t);
+                }
+            }
         }
         else{
+            //Set up for a loaded tile map
             std::cout << "Opened " << tileMapName << ".json, successfully!" << '\n';
             //inputMap << j;
         }
@@ -83,6 +108,8 @@ void Load(){
     else
         std::cout << "No tile map name entered, please enter a tilemap name." << std::endl;
     
+    
+    //Seeting up sprite sheet and selection area
     if(spriteSheetName.length() > 0){
         std::cout << "Loading "<< spriteSheetName <<".png" << std::endl;
         if(!spriteSheet.loadFromFile("SpriteSheets/" + spriteSheetName + ".png")){
@@ -94,17 +121,33 @@ void Load(){
             //Splice sheet up into little pieces, add them to a list and fit to the selection grid
             int sheetCols, sheetRows;
             
-            sheetCols = spriteSheet.getSize().x/tilePixelWidth;
-            sheetRows = spriteSheet.getSize().y/tilePixelHeight;
-            selectionGrid->GenerateSensorGrid(selectAreaPosition.x, selectAreaPosition.y,selectAreaSize.x, selectAreaSize.y, sheetRows, sheetCols, tilePixelWidth, tilePixelHeight);
             
+            sheetCols = spriteSheet.getSize().x / tilePixelWidth;
+            sheetRows = spriteSheet.getSize().y / tilePixelHeight;
+            std::cout << "Debug SheetCols: "<< sheetCols << ", "  << spriteSheet.getSize().x <<", "<< tilePixelWidth<< std::endl;
+            std::cout << "Debug SheetRows: "<< sheetRows << ", " << spriteSheet.getSize().y << ", "<< tilePixelHeight << std::endl;
+            selectionGrid->GenerateSensorGrid(selectAreaPosition.x, selectAreaPosition.y,selectAreaSize.x, selectAreaSize.y, sheetRows, sheetCols, tilePixelWidth, tilePixelHeight);
+            int aW = tilePixelWidth * selectionGrid->getScale(),
+            aH = tilePixelHeight * selectionGrid->getScale();
+            std::cout << "Debug aW: "<< aW << std::endl;
+            std::cout << "Debug aH: "<< aH << std::endl;
+            std::cout << "Debug selectionGridScale: " << selectionGrid->getScale() << std::endl; 
+            selectionSprites.clear();
+            for(unsigned int y = 0; y < sheetRows; y++){
+                for(unsigned int x = 0; x < sheetCols; x++){
+                    selectionSprites.push_back( sf::Sprite(spriteSheet,sf::IntRect(aW * x, aH * y, aW, aH)));
+                    selectionSprites.back().scale(selectionGrid->getScale(), selectionGrid->getScale());
+                    selectionSprites.back().setPosition((float)selectAreaPosition.x + (float)aW * (float)x * selectionGrid->getScale(), (float)selectAreaPosition.y + (float)aH * (float)y * selectionGrid->getScale());
+                    
+                }
+            }
         }
-        
     }
     else
         std::cout << "No sprite Sheet name entered, please enter a sprite sheet name." << std::endl;
     
 }
+
 
 void editText(std::vector<TextBox*> textBoxes){
     for(TextBox* tB : textBoxes){
@@ -316,8 +359,32 @@ int main(){
         {
             window.close();
         }
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
+            int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
+            sf::Vector2i vTemp = paintingGrid->ClickCheckVector(mouseScreenPosition.x, mouseScreenPosition.y);
+            if(temp != -1)
+                editTileIndex = temp;
+            
+            tileMapData[editTileIndex] = -1;
+            delete &tileMapVisuals[editTileIndex];
+            
+            sf::Sprite t(spriteSheet,sf::IntRect(0,0,tilePixelWidth, tilePixelHeight));
+            t.setColor(sf::Color::Black);
+            t.scale(tileScale, tileScale);
+            t.setPosition(paintAreaPosition.x + vTemp.x * tileScale, paintAreaPosition.y + vTemp.y * tileScale);
+            
+            tileMapVisuals[editTileIndex] = t;
+        }
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
+            int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
+            if(temp != -1)
+                editTileIndex = temp;
+            
+            tileMapData[editTileIndex] = selectedTile;
+            delete &tileMapVisuals[editTileIndex];
+            tileMapVisuals[editTileIndex] = selectionSprites[selectedTile];
+            
             if(mouseScreenPosition != lastMousePosition & !mouseDown){
                 //---------------------------------------------------
                 //Debugging Sensor Grids
@@ -326,10 +393,15 @@ int main(){
                 sf::Vector2i pGridV= paintingGrid->ClickCheckVector(mouseScreenPosition.x, mouseScreenPosition.y);
                 
                 if(sGridV.x != -1){
-                    std::cout << "Touched selectionGrid at pos: (" << mouseScreenPosition.x << ", " << mouseScreenPosition.y << "), the index was " << selectionGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y) << std::endl; 
+                    selectedTile = selectionGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
+                    std::cout << "Debug: Touched selectionGrid at pos: (" << mouseScreenPosition.x << ", " << mouseScreenPosition.y << "), the index was " << selectedTile << std::endl; 
+                    sf::Vector2i v = selectionGrid->ClickCheckVector(mouseScreenPosition.x, mouseScreenPosition.y);
+                    std::cout << "Debug: (" << v.x << ", " << v.y << ")" << std::endl;
                 }
                 if(pGridV.x != -1){
-                    std::cout << "Touched paintingGrid at pos: (" << mouseScreenPosition.x << ", " << mouseScreenPosition.y << "), the index was " << paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y) << std::endl;
+                    std::cout << "Debug: Touched paintingGrid at pos: (" << mouseScreenPosition.x << ", " << mouseScreenPosition.y << "), the index was " << editTileIndex << std::endl;
+                    sf::Vector2i v = paintingGrid->ClickCheckVector(mouseScreenPosition.x, mouseScreenPosition.y);
+                    std::cout << "Debug: (" << v.x << ", " << v.y << ")" << std::endl;
                 }
                 //---------------------------------------------------
                 
@@ -351,7 +423,11 @@ int main(){
                     tilePixelWidth = std::stoi(*(tileSizeX->getTextString()));
                 if((*(tileSizeY->getTextString())).length() > 0)
                     tilePixelHeight = std::stoi(*(tileSizeY->getTextString()));
-                //TODO
+                //TODO -> Error in reading these inputs resulting in all ints being 1
+                tilePixelHeight = 16;
+                tilePixelWidth = 16;
+                ssColumns = 32;
+                ssRows = 32;
                 //std::cout << "Debug: Mouse Position: X->" << mouseScreenPosition.x << ", Y->" << mouseScreenPosition.y << std::endl;
                 lastMousePosition = mouseScreenPosition;
                 textDTime.setPosition(mouseScreenPosition.x, mouseScreenPosition.y);
@@ -403,9 +479,13 @@ int main(){
             window.draw(tB->getText());
         }
         
-        window.draw(textDTime);
+        for(sf::Sprite s : selectionSprites) 
+            window.draw(s);
         
+        for(sf::Sprite s : tileMapVisuals)
+            window.draw(s);
         //window.draw(*map);
+        
         
         window.display();
     }

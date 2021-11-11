@@ -17,11 +17,11 @@ void SensorGrid::GenerateSensorGrid(int posX_,int posY_,int width_,int height_,i
     
     if (pWidth_ * columns_ >= pHeight_ * rows_){
         width_OR_Height = true;
-        scale = (width_/columns_)/pWidth_;
+        scale = ((float)width_/(float)columns_)/(float)pWidth_;
     }
     else{
         width_OR_Height = false;
-        scale = (height_/rows_)/pHeight_;
+        scale = ((float)height_/(float)rows_)/(float)pHeight_;
     }
 }
 
@@ -76,6 +76,10 @@ sf::Vector2i SensorGrid::ClickCheckVector(int inX, int inY){
     indX = indX * (pWidth * scale) + posX;
     indY = indY * (pHeight * scale) + posY;
     return sf::Vector2i(indX, indY);
+}
+
+float SensorGrid::getScale(){
+    return scale;
 }
 /* Incomplete not used function
 //Gets the top left coordinate of a box by index
