@@ -11,7 +11,7 @@ class SensorGrid
     void GenerateSensorGrid(float posX_,float posY_,int rows_, int columns_, float pWidth_, float pHeight_);
     int ClickCheckInt(float posX, float posY); //-1 for not on grid
     sf::Vector2i ClickCheckVectorInt(float posX, float posY, bool pixels); //-1 for not on grid, returns top left point of a grid square (x,y)
-    //sf::Vector2i ReverseDimension(int index); //Returns top left point of a grid square (x,y)
+    sf::Vector2i ReverseDimension(int index, bool pixel); //Returns top left point of a grid square (x,y)
     
     float getScale();
     

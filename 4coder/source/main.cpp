@@ -14,6 +14,9 @@
 const sf::Vector2i paintAreaSize(582,582), paintAreaPosition(310, 10);
 const sf::Vector2i selectAreaSize(282,382), selectAreaPosition(10,210);
 
+const int limiterMax = 60;
+int limiter = 0;
+
 std::string tileMapName, spriteSheetName;
 unsigned int ssRows, ssColumns, tilePixelWidth, tilePixelHeight;
 
@@ -45,6 +48,12 @@ void Save(){
         }
         else{
             //ADD DATA TO THE JSON FILE HER
+            j["columns"] = ssColumns;
+            j["rows"] = ssRows;
+            j["width"] = tilePixelWidth;
+            j["height"] = tilePixelHeight;
+            j["image"] = spriteSheetName;
+            j["level"] = tileMapData;
             outMap << j;
             
             //CHECK IF EMPTY, IF YES DELETE IT
@@ -69,6 +78,48 @@ void Save(){
     }
     else
         std::cout << "No tile map name entered, please enter a tilemap name." << std::endl;
+}
+
+void setUpSpriteSheet(bool map){
+    //Seeting up sprite sheet and selection area
+    if(spriteSheetName.length() > 0){
+        std::cout << "Loading "<< spriteSheetName <<".png" << std::endl;
+        if(!spriteSheet.loadFromFile("SpriteSheets/" + spriteSheetName + ".png")){
+            std::cout << "Failed to load " << spriteSheetName << ".png, maybe it does not exist?" << std::endl;
+        }
+        else{
+            std::cout << spriteSheetName << ".png loaded successfully!" << std::endl;
+            
+            //Splice sheet up into little pieces, add them to a list and fit to the selection grid
+            int sheetCols, sheetRows;
+            
+            sheetCols = spriteSheet.getSize().x / tilePixelWidth;
+            sheetRows = spriteSheet.getSize().y / tilePixelHeight;
+            std::cout << "Debug SheetCols: "<< sheetCols << ", "  << spriteSheet.getSize().x <<", "<< tilePixelWidth<< std::endl;
+            std::cout << "Debug SheetRows: "<< sheetRows << ", " << spriteSheet.getSize().y << ", "<< tilePixelHeight << std::endl;
+            selectionGrid->GenerateSensorGrid(selectAreaPosition.x, selectAreaPosition.y, sheetRows, sheetCols, tilePixelWidth, tilePixelHeight);
+            
+            //int aW = tilePixelWidth * selectionGrid->getScale(),
+            //aH = tilePixelHeight * selectionGrid->getScale();
+            //std::cout << "Debug aW: "<< aW << std::endl;
+            //std::cout << "Debug aH: "<< aH << std::endl;
+            //std::cout << "Debug selectionGridScale: " << selectionGrid->getScale() << std::endl; 
+            selectionSprites.clear();
+            
+            if(!map)
+                return;
+            for(unsigned int y = 0; y < sheetRows; y++){
+                for(unsigned int x = 0; x < sheetCols; x++){
+                    //selectionSprites.push_back( sf::Sprite(spriteSheet,sf::IntRect(aW * x, aH * y, aW, aH)));
+                    selectionSprites.push_back( sf::Sprite(spriteSheet,sf::IntRect(tilePixelWidth * x, tilePixelHeight * y, tilePixelWidth, tilePixelHeight)));
+                    //selectionSprites.back().scale(selectionGrid->getScale(), selectionGrid->getScale());
+                    selectionSprites.back().setPosition(selectAreaPosition.x + tilePixelWidth * x/** selectionGrid->getScale()*/, selectAreaPosition.y + tilePixelHeight * y/** selectionGrid->getScale()*/);
+                }
+            }
+        }
+    }
+    else
+        std::cout << "No sprite Sheet name entered, please enter a sprite sheet name." << std::endl;
 }
 
 void Load(){
@@ -106,50 +157,32 @@ void Load(){
         else{
             //Set up for a loaded tile map
             std::cout << "Opened " << tileMapName << ".json, successfully!" << '\n';
-            //inputMap << j;
+            inputMap >> j;
+            ssColumns = j["columns"].get<int>();
+            ssRows = j["rows"].get<int>();
+            tilePixelWidth = j["width"].get<int>();
+            tilePixelHeight = j["height"].get<int>();
+            spriteSheetName = j["image"].get<std::string>();
+            tileMapData = j["level"].get<std::vector<int>>();
+            setUpSpriteSheet(true);
+            
+            int count = tileMapData.size();
+            for( unsigned int y = 0; y < ssRows; y++){
+                for( unsigned int x = 0; x < ssColumns; x++){
+                    sf::Vector2i v = selectionGrid->ReverseDimension(count, false);
+                    
+                    sf::Sprite tile(spriteSheet,sf::IntRect(v.x * tilePixelWidth, v.y * tilePixelHeight,tilePixelWidth, tilePixelHeight));
+                    tile.setPosition(paintAreaPosition.x + x * tilePixelWidth, paintAreaPosition.y + y * tilePixelHeight);
+                    tileMapVisuals.push_back(tile);
+                    count++;
+                }
+            }
+            return;
         }
     }
     else
         std::cout << "No tile map name entered, please enter a tilemap name." << std::endl;
-    
-    
-    //Seeting up sprite sheet and selection area
-    if(spriteSheetName.length() > 0){
-        std::cout << "Loading "<< spriteSheetName <<".png" << std::endl;
-        if(!spriteSheet.loadFromFile("SpriteSheets/" + spriteSheetName + ".png")){
-            std::cout << "Failed to load " << spriteSheetName << ".png, maybe it does not exist?" << std::endl;
-        }
-        else{
-            std::cout << spriteSheetName << ".png loaded successfully!" << std::endl;
-            
-            //Splice sheet up into little pieces, add them to a list and fit to the selection grid
-            int sheetCols, sheetRows;
-            
-            sheetCols = spriteSheet.getSize().x / tilePixelWidth;
-            sheetRows = spriteSheet.getSize().y / tilePixelHeight;
-            std::cout << "Debug SheetCols: "<< sheetCols << ", "  << spriteSheet.getSize().x <<", "<< tilePixelWidth<< std::endl;
-            std::cout << "Debug SheetRows: "<< sheetRows << ", " << spriteSheet.getSize().y << ", "<< tilePixelHeight << std::endl;
-            selectionGrid->GenerateSensorGrid(selectAreaPosition.x, selectAreaPosition.y, sheetRows, sheetCols, tilePixelWidth, tilePixelHeight);
-            
-            //int aW = tilePixelWidth * selectionGrid->getScale(),
-            //aH = tilePixelHeight * selectionGrid->getScale();
-            //std::cout << "Debug aW: "<< aW << std::endl;
-            //std::cout << "Debug aH: "<< aH << std::endl;
-            //std::cout << "Debug selectionGridScale: " << selectionGrid->getScale() << std::endl; 
-            selectionSprites.clear();
-            for(unsigned int y = 0; y < sheetRows; y++){
-                for(unsigned int x = 0; x < sheetCols; x++){
-                    //selectionSprites.push_back( sf::Sprite(spriteSheet,sf::IntRect(aW * x, aH * y, aW, aH)));
-                    selectionSprites.push_back( sf::Sprite(spriteSheet,sf::IntRect(tilePixelWidth * x, tilePixelHeight * y, tilePixelWidth, tilePixelHeight)));
-                    //selectionSprites.back().scale(selectionGrid->getScale(), selectionGrid->getScale());
-                    selectionSprites.back().setPosition(selectAreaPosition.x + tilePixelWidth * x/** selectionGrid->getScale()*/, selectAreaPosition.y + tilePixelHeight * y/** selectionGrid->getScale()*/);
-                }
-            }
-        }
-    }
-    else
-        std::cout << "No sprite Sheet name entered, please enter a sprite sheet name." << std::endl;
-    
+    setUpSpriteSheet(false);
 }
 
 
@@ -343,29 +376,31 @@ int main(){
         }
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
+            limiter++;
+            if(limiter >= limiterMax){
+                if(tileMapData.size() > 0){
+                    
+                    int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
+                    sf::Vector2i vTemp = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, true);
+                    sf::Vector2i iTemp = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, false);
+                    
+                    if(temp != -1){
+                        editTileIndex = temp;
+                        
+                        
+                        sf::Sprite tile(spriteSheet,sf::IntRect(tilePixelWidth * selectedTileV2.x, tilePixelHeight * selectedTileV2.y, tilePixelWidth, tilePixelHeight));
+                        
+                        tile.setPosition(vTemp.x, vTemp.y);
+                        
+                        
+                        tileMapData[editTileIndex] = selectedTile;
+                        tileMapVisuals[editTileIndex] = tile;
+                    }
+                }
+                limiter == 0;
+            }
             if(lastMousePosition !=  mouseScreenPosition){
                 if(!mouseDown){
-                    
-                    if(tileMapData.size() > 0){
-                        
-                        int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
-                        sf::Vector2i vTemp = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, true);
-                        sf::Vector2i iTemp = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, false);
-                        
-                        if(temp != -1){
-                            editTileIndex = temp;
-                            
-                            
-                            sf::Sprite tile(spriteSheet,sf::IntRect(tilePixelWidth * selectedTileV2.x, tilePixelHeight * selectedTileV2.y, tilePixelWidth, tilePixelHeight));
-                            
-                            tile.setPosition(vTemp.x, vTemp.y);
-                            
-                            
-                            tileMapData[editTileIndex] = selectedTile;
-                            tileMapVisuals[editTileIndex] = tile;
-                        }
-                    }
-                    
                     //---------------------------------------------------
                     //Debugging Sensor Grids
                     sf::Vector2i sGridV= selectionGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, false);

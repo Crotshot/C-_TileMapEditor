@@ -86,6 +86,22 @@ sf::Vector2i SensorGrid::ClickCheckVectorInt(float inputX, float inputY, bool pi
     return sf::Vector2i(x_index, y_index);
 }
 
+sf::Vector2i SensorGrid::ReverseDimension(int index, bool pixel){
+    if(index < 0 || index > rows * columns)
+        return (sf::Vector2i(1, 1) * -1);
+    sf::Vector2i v;
+    
+    v.x = index % columns;
+    v.y = index / columns;
+    
+    if(pixel){
+        v.x *= pWidth;
+        v.y *= pHeight;
+    }
+    
+    return v;
+}
+
 float SensorGrid::getScale(){
     return scale;
 }
