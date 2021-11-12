@@ -5,16 +5,19 @@ SensorGrid::SensorGrid(){
     //Def const
 }
 
-void SensorGrid::GenerateSensorGrid(int posX_,int posY_,int width_,int height_,int rows_, int columns_, int pWidth_, int pHeight_){
+void SensorGrid::GenerateSensorGrid(float posX_,float posY_,int rows_, int columns_, float pWidth_, float pHeight_){
     posX = posX_;
     posY = posY_;
-    width = width_;
-    height = height_;
+    width = (float)columns_ * pWidth_;
+    height = (float)rows_ * pHeight_;
+    
     rows = rows_;
     columns = columns_;
     pWidth = pWidth_;
     pHeight = pHeight_;
     
+    scale = 1;
+    /* Scale stuff to be reworked later
     if (pWidth_ * columns_ >= pHeight_ * rows_){
         width_OR_Height = true;
         scale = ((float)width_/(float)columns_)/(float)pWidth_;
@@ -23,86 +26,66 @@ void SensorGrid::GenerateSensorGrid(int posX_,int posY_,int width_,int height_,i
         width_OR_Height = false;
         scale = ((float)height_/(float)rows_)/(float)pHeight_;
     }
+*/
 }
 
-int SensorGrid::ClickCheckInt(int inX, int inY){
-    //Formula : y * cols + x = 1D index
-    
-    if(inX < posX || inX > posX + width || inY < posY || inY > posY + height)
+//Formula for getting index of a 1D array in 2D space: y * cols + x = 1D index
+int SensorGrid::ClickCheckInt(float inputX, float inputY){
+    if(inputX < posX || inputX > posX + width || inputY < posY || inputY > posY + height)
         return -1; //Check if clicked inside box, if not return -1
     
-    int x = posX, y = posY, indX = 0, indY = 0;
+    float x = posX, y = posY;
+    int x_index = 0, y_index = 0;
     
     while (x < posX + width){ //Find index X
-        if(inX > x && inX < x + (pWidth * scale))
+        if(inputX > x && inputX < x + (pWidth/* * scale*/))
             break;
-        x += (pWidth * scale);
-        indX++;
+        x += (pWidth/* * scale*/);
+        x_index++;
     }
     
     while (y < posY + height){ //Find Index Y
-        if(inY > y && inY < y + (pHeight * scale))
+        if(inputY > y && inputY < y + (pHeight/* * scale*/))
             break;
-        y += (pHeight * scale);
-        indY++;
+        y += (pHeight/* * scale*/);
+        y_index++;
     }
     //Use formula to calculate index in a 1D array
-    return indY * columns + indX;
+    return y_index * columns + x_index;
 }
 
-//Gets top left of box by position
-sf::Vector2i SensorGrid::ClickCheckVector(int inX, int inY){
+//Gets top left of box by position, bool pixels whether to return index postion in 2D or coordinate position of box
+sf::Vector2i SensorGrid::ClickCheckVectorInt(float inputX, float inputY, bool pixels){
     //Formula : y * cols + x = 1D index
     
-    if(inX < posX || inX > posX + width || inY < posY || inY > posY + height)
+    if(inputX < posX || inputX > posX + width || inputY < posY || inputY > posY + height)
         return (sf::Vector2i(1, 1) * -1);//Check if clicked inside box, if not return -1
     
-    int x = posX, y = posY, indX = 0, indY = 0;
+    float x = posX, y = posY;
+    int x_index = 0, y_index = 0;
     
     while (x < posX + width){ //Find index X
-        if(inX > x && inX < x + (pWidth * scale))
+        if(inputX >= x && inputX < x + (pWidth/* * scale*/))
             break;
-        x += (pWidth * scale);
-        indX++;
+        x += (pWidth/* * scale*/);
+        x_index++;
     }
     
     while (y < posY + height){ //Find Index Y
-        if(inY > y && inY < y + (pHeight * scale))
+        if(inputY >= y && inputY < y + (pHeight/* * scale*/))
             break;
-        y += (pHeight * scale);
-        indY++;
+        y += (pHeight/* * scale*/);
+        y_index++;
     }
     
-    indX = indX * (pWidth * scale) + posX;
-    indY = indY * (pHeight * scale) + posY;
-    return sf::Vector2i(indX, indY);
+    
+    if(pixels){
+        x_index = (int)((float)x_index * (pWidth/* * scale*/) + posX);
+        y_index = (int)((float)y_index * (pHeight/* * scale*/) + posY);
+    }
+    return sf::Vector2i(x_index, y_index);
 }
 
 float SensorGrid::getScale(){
     return scale;
 }
-/* Incomplete not used function
-//Gets the top left coordinate of a box by index
-sf::Vector2i SensorGrid::ReverseDimension(int index){
-    if(index >= columns * rows || index < 0)
-        return new sf::Vector2i(-1, -1);
-    
-    int x = posX, y = posY, indX = 0, indY = 0;
-    
-    while (x < posX + width){ //Find index X
-        if(inX > x && inX < x + (pWidth * scale))
-            break;
-        x += (pWidth * scale);
-        indX++;
-    }
-    
-    while (y < posY + height){ //Find Index Y
-        if(inY > y && inY < y + (pHeight * scale))
-            break;
-        y += (pHeight * scale);
-        indY++;
-    }
-    
-    return new sf::Vector2i(indX * (pWidth * scale) + posX, indY * (pHeight * scale) + posY);
-}
-*/
