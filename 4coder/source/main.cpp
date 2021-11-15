@@ -13,7 +13,7 @@
 
 const sf::Vector2i paintAreaSize(582,582), paintAreaPosition(310, 10), selectAreaSize(282,382), selectAreaPosition(10,210);
 
-const float limiterMax = 0.125;
+const float limiterMax = 0.0625;
 float limiter = 0; //Reduces the frequaency that left/right mouse and return key input to limiterMax/1second
 
 std::string tileMapName, spriteSheetName;
@@ -79,7 +79,7 @@ void Load(){
         inputMap = std::ifstream("TileMaps/" + tileMapName + ".json");
         
         if (!inputMap.is_open()) {//Set up for a blank tile map
-            std::cout << "File:" << tileMapName << ".json did not exist, making new tilemap" << '\n';
+            std::cout << "File:" << tileMapName << ".json did not exist, making new tilemap" << std::endl;
             paintingGrid->GenerateSensorGrid(paintAreaPosition.x, paintAreaPosition.y, ssRows, ssColumns, tilePixelWidth, tilePixelHeight);
             for( unsigned int y = 0; y < ssRows; y++){
                 for( unsigned int x = 0; x < ssColumns; x++){
@@ -92,15 +92,23 @@ void Load(){
             }
         }
         else{ //Set up for a loaded tile map
-            std::cout << "Opened " << tileMapName << ".json, successfully!" << '\n';
+            std::cout << "Debug: 1" << std::endl;
             inputMap >> j;
+            std::cout << "Debug: 2" << std::endl;
             ssColumns = j["columns"].get<int>();
+            std::cout << "Debug: 3" << std::endl;
             ssRows = j["rows"].get<int>();
+            std::cout << "Debug: 4" << std::endl;
             tilePixelWidth = j["width"].get<int>();
+            std::cout << "Debug: 5" << std::endl;
             tilePixelHeight = j["height"].get<int>();
+            std::cout << "Debug: 6" << std::endl;
             spriteSheetName = j["image"].get<std::string>();
+            std::cout << "Debug: 7" << std::endl;
             tileMapData = j["level"].get<std::vector<int>>();
+            std::cout << "Debug: 8" << std::endl;
             paintingGrid->GenerateSensorGrid(paintAreaPosition.x, paintAreaPosition.y, ssRows, ssColumns, tilePixelWidth, tilePixelHeight);
+            std::cout << "Debug: 9" << std::endl;
             int count = tileMapData.size();
             for( unsigned int y = 0; y < ssRows; y++){
                 for( unsigned int x = 0; x < ssColumns; x++){
@@ -111,6 +119,7 @@ void Load(){
                     count++;
                 }
             }
+            std::cout << "Opened " << tileMapName << ".json, successfully!" << std::endl;
         }
     }
     else
