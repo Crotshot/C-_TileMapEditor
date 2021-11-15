@@ -13,8 +13,8 @@
 
 const sf::Vector2i paintAreaSize(582,582), paintAreaPosition(310, 10), selectAreaSize(282,382), selectAreaPosition(10,210);
 
-const float limiterMax = 1;
-float limiter = 0; //Used when left clicking to reduce how often the code is run
+const float limiterMax = 0.125;
+float limiter = 0; //Reduces the frequaency that left/right mouse and return key input to limiterMax/1second
 
 std::string tileMapName, spriteSheetName;
 unsigned int ssRows, ssColumns, tilePixelWidth, tilePixelHeight; //Data input by the text boxes
@@ -231,13 +231,16 @@ int main(){
     bool mouseDown = false; //Used to prevent 1 mouse click from continuely inputing
     bool inFocus = true; //Used to stop code when window is not in focus
     bool editingText = false;
+    bool resetLimiter = false;
     
     std::string* editString; //Pointer to string that is currently being edited 
     
     while(window.isOpen()){
         sf::Time dt= clock.restart();
+        limiter += dt.asSeconds();
         textDTime.setString(std::to_string(limiter));
         mouseScreenPosition = sf::Vector2f(sf::Mouse::getPosition(window));
+        
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -291,8 +294,6 @@ int main(){
                 tB->CheckInput(v);
                 editingText = false;
             }
-            
-            limiter += dt.asSeconds();
             if(limiter >= limiterMax){
                 std::cout << "Debug------------------------------------------" << std::endl;
                 
@@ -301,7 +302,7 @@ int main(){
                 std::cout << "tilePixelWidth: " <<  tilePixelWidth << ", tilePixelHeight: " << tilePixelHeight << std::endl;
                 
                 std::cout << "Debug------------------------------------------" << std::endl;
-                limiter == 0;
+                resetLimter = true;
             }
             
         }
@@ -310,21 +311,22 @@ int main(){
             window.close();
         }
         if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
-            int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
-            sf::Vector2i vTemp = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, true);
-            
-            if(temp != -1){//Tile erasing
-                editTileIndex = temp;
-                tileMapData[editTileIndex] = -1;
-                sf::Sprite tile(spriteSheet,sf::IntRect(0,0,tilePixelWidth, tilePixelHeight));
-                tile.setColor(sf::Color::Black);
-                tile.setPosition(vTemp.x, vTemp.y);
-                tileMapVisuals[editTileIndex] = tile;
+            if(limiter >= limiterMax){
+                int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
+                sf::Vector2i vTemp = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, true);
+                if(temp != -1){//Tile erasing
+                    editTileIndex = temp;
+                    tileMapData[editTileIndex] = -1;
+                    sf::Sprite tile(spriteSheet,sf::IntRect(0,0,tilePixelWidth, tilePixelHeight));
+                    tile.setColor(sf::Color::Black);
+                    tile.setPosition(vTemp.x, vTemp.y);
+                    tileMapVisuals[editTileIndex] = tile;
+                    resetLimter = true;
+                }
             }
         }
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            limiter += dt.asSeconds();
             if(limiter >= limiterMax){
                 if(tileMapData.size() > 0){//Tile painting
                     int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
@@ -339,7 +341,7 @@ int main(){
                         tileMapVisuals[editTileIndex] = tile;
                     }
                 }
-                limiter == 0;
+                resetLimter = true;
             }
             if(lastMousePosition !=  mouseScreenPosition){
                 if(!mouseDown){
@@ -430,6 +432,9 @@ int main(){
         
         window.draw(textDTime);
         window.display();
+        
+        if(resetLimiter)
+            limiter = 0;
     }
     return 0;
 }
