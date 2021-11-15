@@ -73,45 +73,14 @@ void Save(){ //In Save() and Load() no need to type .json or .png as it will aut
         std::cout << "No tile map name entered, please enter a tilemap name." << std::endl;
 }
 
-void setUpSpriteSheet(bool map){//Seeting up sprite sheet and selection area
-    if(spriteSheetName.length() > 0){
-        std::cout << "Loading "<< spriteSheetName <<".png" << std::endl;
-        if(!spriteSheet.loadFromFile("SpriteSheets/" + spriteSheetName + ".png")){
-            std::cout << "Failed to load " << spriteSheetName << ".png, maybe it does not exist?" << std::endl;
-        }
-        else{
-            std::cout << spriteSheetName << ".png loaded successfully!" << std::endl;
-            
-            int sheetCols, sheetRows;
-            sheetCols = spriteSheet.getSize().x / tilePixelWidth;
-            sheetRows = spriteSheet.getSize().y / tilePixelHeight;
-            std::cout << "Debug SheetCols: "<< sheetCols << ", "  << spriteSheet.getSize().x <<", "<< tilePixelWidth<< std::endl;
-            std::cout << "Debug SheetRows: "<< sheetRows << ", " << spriteSheet.getSize().y << ", "<< tilePixelHeight << std::endl;
-            selectionGrid->GenerateSensorGrid(selectAreaPosition.x, selectAreaPosition.y, sheetRows, sheetCols, tilePixelWidth, tilePixelHeight);
-            selectionSprites.clear();
-            
-            if(!map)
-                return;
-            for(unsigned int y = 0; y < sheetRows; y++){
-                for(unsigned int x = 0; x < sheetCols; x++){
-                    selectionSprites.push_back( sf::Sprite(spriteSheet,sf::IntRect(tilePixelWidth * x, tilePixelHeight * y, tilePixelWidth, tilePixelHeight)));
-                    selectionSprites.back().setPosition(selectAreaPosition.x + tilePixelWidth * x, selectAreaPosition.y + tilePixelHeight * y);
-                }
-            }
-        }
-    }
-    else
-        std::cout << "No sprite Sheet name entered, please enter a sprite sheet name." << std::endl;
-}
-
 void Load(){
     if(tileMapName.length() > 0){
         std::cout << "Loading "<< tileMapName <<".json" << std::endl;
         inputMap = std::ifstream("TileMaps/" + tileMapName + ".json");
-        paintingGrid->GenerateSensorGrid(paintAreaPosition.x, paintAreaPosition.y, ssRows, ssColumns, tilePixelWidth, tilePixelHeight);
         
-        if (!inputMap.is_open()) {//Set up for a new tile map
+        if (!inputMap.is_open()) {//Set up for a blank tile map
             std::cout << "File:" << tileMapName << ".json did not exist, making new tilemap" << '\n';
+            paintingGrid->GenerateSensorGrid(paintAreaPosition.x, paintAreaPosition.y, ssRows, ssColumns, tilePixelWidth, tilePixelHeight);
             for( unsigned int y = 0; y < ssRows; y++){
                 for( unsigned int x = 0; x < ssColumns; x++){
                     tileMapData.push_back(-1);
@@ -131,24 +100,48 @@ void Load(){
             tilePixelHeight = j["height"].get<int>();
             spriteSheetName = j["image"].get<std::string>();
             tileMapData = j["level"].get<std::vector<int>>();
-            setUpSpriteSheet(true);
+            paintingGrid->GenerateSensorGrid(paintAreaPosition.x, paintAreaPosition.y, ssRows, ssColumns, tilePixelWidth, tilePixelHeight);
             int count = tileMapData.size();
             for( unsigned int y = 0; y < ssRows; y++){
                 for( unsigned int x = 0; x < ssColumns; x++){
-                    sf::Vector2i v = selectionGrid->ReverseDimension(count, false);
+                    sf::Vector2i v = selectionGrid->ReverseDimension(tileMapData[count], false);
                     sf::Sprite tile(spriteSheet,sf::IntRect(v.x * tilePixelWidth, v.y * tilePixelHeight,tilePixelWidth, tilePixelHeight));
                     tile.setPosition(paintAreaPosition.x + x * tilePixelWidth, paintAreaPosition.y + y * tilePixelHeight);
                     tileMapVisuals.push_back(tile);
                     count++;
                 }
             }
-            return;
         }
     }
-    else{
+    else
         std::cout << "No tile map name entered, please enter a tilemap name." << std::endl;
-        setUpSpriteSheet(false);
+    
+    if(spriteSheetName.length() > 0){
+        std::cout << "Loading "<< spriteSheetName <<".png" << std::endl;
+        if(!spriteSheet.loadFromFile("SpriteSheets/" + spriteSheetName + ".png")){
+            std::cout << "Failed to load " << spriteSheetName << ".png, maybe it does not exist?" << std::endl;
+        }
+        else{
+            std::cout << spriteSheetName << ".png loaded successfully!" << std::endl;
+            
+            int sheetCols, sheetRows;
+            sheetCols = spriteSheet.getSize().x / tilePixelWidth;
+            sheetRows = spriteSheet.getSize().y / tilePixelHeight;
+            std::cout << "Debug SheetCols: "<< sheetCols << ", "  << spriteSheet.getSize().x <<", "<< tilePixelWidth<< std::endl;
+            std::cout << "Debug SheetRows: "<< sheetRows << ", " << spriteSheet.getSize().y << ", "<< tilePixelHeight << std::endl;
+            selectionGrid->GenerateSensorGrid(selectAreaPosition.x, selectAreaPosition.y, sheetRows, sheetCols, tilePixelWidth, tilePixelHeight);
+            selectionSprites.clear();
+            
+            for(unsigned int y = 0; y < sheetRows; y++){
+                for(unsigned int x = 0; x < sheetCols; x++){
+                    selectionSprites.push_back( sf::Sprite(spriteSheet,sf::IntRect(tilePixelWidth * x, tilePixelHeight * y, tilePixelWidth, tilePixelHeight)));
+                    selectionSprites.back().setPosition(selectAreaPosition.x + tilePixelWidth * x, selectAreaPosition.y + tilePixelHeight * y);
+                }
+            }
+        }
     }
+    else
+        std::cout << "No sprite Sheet name entered, please enter a sprite sheet name." << std::endl;
 }
 
 void editText(std::vector<TextBox*> textBoxes){
@@ -302,7 +295,7 @@ int main(){
                 std::cout << "tilePixelWidth: " <<  tilePixelWidth << ", tilePixelHeight: " << tilePixelHeight << std::endl;
                 
                 std::cout << "Debug------------------------------------------" << std::endl;
-                resetLimter = true;
+                resetLimiter = true;
             }
             
         }
@@ -321,7 +314,7 @@ int main(){
                     tile.setColor(sf::Color::Black);
                     tile.setPosition(vTemp.x, vTemp.y);
                     tileMapVisuals[editTileIndex] = tile;
-                    resetLimter = true;
+                    resetLimiter = true;
                 }
             }
         }
@@ -341,7 +334,7 @@ int main(){
                         tileMapVisuals[editTileIndex] = tile;
                     }
                 }
-                resetLimter = true;
+                resetLimiter = true;
             }
             if(lastMousePosition !=  mouseScreenPosition){
                 if(!mouseDown){
@@ -433,8 +426,10 @@ int main(){
         window.draw(textDTime);
         window.display();
         
-        if(resetLimiter)
+        if(resetLimiter){
             limiter = 0;
+            resetLimiter = false;
+        }
     }
     return 0;
 }
