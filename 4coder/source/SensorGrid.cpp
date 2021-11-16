@@ -38,14 +38,14 @@ int SensorGrid::ClickCheckInt(float inputX, float inputY){
     int x_index = 0, y_index = 0;
     
     while (x < posX + width){ //Find index X
-        if(inputX > x && inputX < x + (pWidth/* * scale*/))
+        if(inputX >= x && inputX <= x + (pWidth/* * scale*/))
             break;
         x += (pWidth/* * scale*/);
         x_index++;
     }
     
     while (y < posY + height){ //Find Index Y
-        if(inputY > y && inputY < y + (pHeight/* * scale*/))
+        if(inputY >= y && inputY <= y + (pHeight/* * scale*/))
             break;
         y += (pHeight/* * scale*/);
         y_index++;
@@ -65,14 +65,14 @@ sf::Vector2i SensorGrid::ClickCheckVectorInt(float inputX, float inputY, bool pi
     int x_index = 0, y_index = 0;
     
     while (x < posX + width){ //Find index X
-        if(inputX >= x && inputX < x + (pWidth/* * scale*/))
+        if(inputX >= x && inputX <= x + (pWidth/* * scale*/))
             break;
         x += (pWidth/* * scale*/);
         x_index++;
     }
     
     while (y < posY + height){ //Find Index Y
-        if(inputY >= y && inputY < y + (pHeight/* * scale*/))
+        if(inputY >= y && inputY <= y + (pHeight/* * scale*/))
             break;
         y += (pHeight/* * scale*/);
         y_index++;
