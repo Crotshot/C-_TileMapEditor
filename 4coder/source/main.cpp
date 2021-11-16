@@ -142,6 +142,9 @@ void Load(){
                 for( unsigned int x = 0; x < ssColumns; x++){
                     sf::Vector2i v = selectionGrid->ReverseDimension(tileMapData[count], false);
                     sf::Sprite tile(spriteSheet,sf::IntRect(v.x * tilePixelWidth, v.y * tilePixelHeight,tilePixelWidth, tilePixelHeight));
+                    if(tileMapData[count] == -1)
+                        tile.setColor(sf::Color::Black);
+                    
                     tile.setPosition(paintAreaPosition.x + x * tilePixelWidth, paintAreaPosition.y + y * tilePixelHeight);
                     tileMapVisuals.push_back(tile);
                     count++;
@@ -274,7 +277,8 @@ int main(){
             if(!editingText)
                 continue;
             
-            if(event.key.code == sf::Keyboard::BackSpace)
+            /*
+if(event.key.code == sf::Keyboard::BackSpace)
             {
                 if((*editString).length() > 0){
                     (*editString).erase( (*editString).length() - 1 );
@@ -295,6 +299,23 @@ int main(){
             }
             if(event.key.code == sf::Keyboard::Space){
                 *editString += (char)' ';
+                editText(textBoxes);
+            }
+*/
+            if (event.type == sf::Event::TextEntered) {
+                if (std::isprint(event.text.unicode)){
+                    *editString += (char)event.text.unicode;
+                    editText(textBoxes);
+                }
+            }
+            else if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::BackSpace) {
+                    if (!(*editString).empty())
+                        (*editString).pop_back();
+                }
+                if (event.key.code == sf::Keyboard::Space) {
+                    *editString += (char) ' ';
+                }
                 editText(textBoxes);
             }
         }
