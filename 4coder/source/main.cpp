@@ -103,6 +103,8 @@ void selectionGridSetUp(){
 }
 
 bool updateFields;
+float paintedTileScale;
+
 void Load(){
     selectionSprites.clear();
     tileMapVisuals.clear();
@@ -114,12 +116,15 @@ void Load(){
         if (!inputMap.is_open()) {//Set up for a blank tile map
             std::cout << "File:" << tileMapName << ".json did not exist, making new tilemap" << std::endl;
             paintingGrid->GenerateSensorGrid(paintAreaPosition.x, paintAreaPosition.y, ssRows, ssColumns, tilePixelWidth, tilePixelHeight);
+            paintingGrid->applyScale(paintAreaSize.x, paintAreaSize.y);
+            paintedTileScale = paintingGrid->getScale();
             for( unsigned int y = 0; y < ssRows; y++){
                 for( unsigned int x = 0; x < ssColumns; x++){
                     tileMapData.push_back(-1);
                     sf::Sprite tile(spriteSheet,sf::IntRect(0,0,tilePixelWidth, tilePixelHeight));
                     tile.setColor(sf::Color::Black);//Black tiles which acts like a rubber, represented by -1 in tileMapData
-                    tile.setPosition(paintAreaPosition.x + x * tilePixelWidth, paintAreaPosition.y + y * tilePixelHeight);
+                    tile.setPosition(paintAreaPosition.x + (x * tilePixelWidth) * paintedTileScale, paintAreaPosition.y + (y * tilePixelHeight) * paintedTileScale);
+                    tile.scale(paintedTileScale,paintedTileScale);
                     tileMapVisuals.push_back(tile);
                 }
             }
@@ -138,6 +143,10 @@ void Load(){
             paintingGrid->GenerateSensorGrid(paintAreaPosition.x, paintAreaPosition.y, ssRows, ssColumns, tilePixelWidth, tilePixelHeight);
             selectionGridSetUp();
             int count = 0;
+            
+            paintingGrid->applyScale(paintAreaSize.x, paintAreaSize.y);
+            paintedTileScale = paintingGrid->getScale();
+            std::cout << paintedTileScale << std::endl;
             for( unsigned int y = 0; y < ssRows; y++){
                 for( unsigned int x = 0; x < ssColumns; x++){
                     sf::Vector2i v = selectionGrid->ReverseDimension(tileMapData[count], false);
@@ -145,7 +154,8 @@ void Load(){
                     if(tileMapData[count] == -1)
                         tile.setColor(sf::Color::Black);
                     
-                    tile.setPosition(paintAreaPosition.x + x * tilePixelWidth, paintAreaPosition.y + y * tilePixelHeight);
+                    tile.setPosition(paintAreaPosition.x + (x * tilePixelWidth) * paintedTileScale, paintAreaPosition.y + (y * tilePixelHeight) * paintedTileScale);
+                    tile.scale(paintedTileScale,paintedTileScale);
                     tileMapVisuals.push_back(tile);
                     count++;
                 }
@@ -243,13 +253,23 @@ int main(){
     
     while(window.isOpen()){
         if(updateFields){//Updates textBoxes afer loading in a json file
+            
             spriteSheetBox->setText(spriteSheetName);
             jsonBox->setText(tileMapName);
             tileRows->setText(std::to_string(ssRows));
             tileColumns->setText(std::to_string(ssColumns));
             tileSizeX->setText(std::to_string(tilePixelWidth));
             tileSizeY->setText(std::to_string(tilePixelHeight));
+            
+            spriteSheetBox->setTextString(spriteSheetName);
+            jsonBox->setTextString(tileMapName);
+            tileRows->setTextString(std::to_string(ssRows));
+            tileColumns->setTextString(std::to_string(ssColumns));
+            tileSizeX->setTextString(std::to_string(tilePixelWidth));
+            tileSizeY->setTextString(std::to_string(tilePixelHeight));
+            
             updateFields = false;
+            editText(textBoxes);
         }
         sf::Time dt= clock.restart();
         limiter += dt.asSeconds();
@@ -277,31 +297,6 @@ int main(){
             if(!editingText)
                 continue;
             
-            /*
-if(event.key.code == sf::Keyboard::BackSpace)
-            {
-                if((*editString).length() > 0){
-                    (*editString).erase( (*editString).length() - 1 );
-                    editText(textBoxes);
-                }
-            }
-            else
-            {
-                if((event.text.unicode >= (char)'0' && event.text.unicode <= (char)'9') ||
-                   (event.text.unicode >= (char)'a' && event.text.unicode <= (char)'z') ||
-                   (event.text.unicode >= (char)'A' && event.text.unicode <= (char)'Z') ||
-                   event.text.unicode == (char)' '
-                   )
-                {
-                    *editString += (char)event.text.unicode;
-                    editText(textBoxes);
-                }
-            }
-            if(event.key.code == sf::Keyboard::Space){
-                *editString += (char)' ';
-                editText(textBoxes);
-            }
-*/
             if (event.type == sf::Event::TextEntered) {
                 if (std::isprint(event.text.unicode)){
                     *editString += (char)event.text.unicode;
@@ -353,6 +348,7 @@ if(event.key.code == sf::Keyboard::BackSpace)
                     sf::Sprite tile(spriteSheet,sf::IntRect(0,0,tilePixelWidth, tilePixelHeight));
                     tile.setColor(sf::Color::Black);
                     tile.setPosition(vTemp.x, vTemp.y);
+                    tile.scale(paintedTileScale,paintedTileScale);
                     tileMapVisuals[editTileIndex] = tile;
                     resetLimiter = true;
                 }
@@ -370,7 +366,7 @@ if(event.key.code == sf::Keyboard::BackSpace)
                         editTileIndex = temp;
                         sf::Sprite tile(spriteSheet,sf::IntRect(tilePixelWidth * selectedTileV2.x, tilePixelHeight * selectedTileV2.y, tilePixelWidth, tilePixelHeight));
                         tile.setPosition(vTemp.x, vTemp.y);
-                        
+                        tile.scale(paintedTileScale,paintedTileScale);
                         tileMapData[editTileIndex] = selectedTile;
                         tileMapVisuals[editTileIndex] = tile;
                     }

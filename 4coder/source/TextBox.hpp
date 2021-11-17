@@ -16,6 +16,8 @@ class TextBox
     sf::Text getText();
     void setText(std::string text);
     std::string* getTextString();
+    void setTextString(std::string s);
+    
     private:
     sf::Texture boxTexture;
     sf::Font boxFont;

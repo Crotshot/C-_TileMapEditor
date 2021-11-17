@@ -77,3 +77,7 @@ sf::Text TextBox::getText(){
 std::string* TextBox::getTextString(){
     return &textString;
 }
+
+void TextBox::setTextString(std::string s){
+    textString = s;
+}
