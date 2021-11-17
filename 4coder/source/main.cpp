@@ -13,8 +13,11 @@
 
 const sf::Vector2i paintAreaSize(582,582), paintAreaPosition(310, 10), selectAreaSize(282,382), selectAreaPosition(10,210);
 
-const float limiterMax = 0.0625;
-float limiter = 0; //Reduces the frequaency that left/right mouse and return key input to limiterMax/1second
+const float inputLimiterMax = 0.0625;
+float inputLimiter = 0; //Reduces the frequaency that left/right mouse and return key input to inputLimiterMax/1second
+
+const float frameLimiterMax = 0.0333;
+float frameLimter = 0; //Limits the refresh rate of the application;
 
 std::string tileMapName, spriteSheetName;
 unsigned int ssRows, ssColumns, tilePixelWidth, tilePixelHeight; //Data input by the text boxes
@@ -310,8 +313,10 @@ int main(){
             editText(textBoxes);
         }
         sf::Time dt= clock.restart();
-        limiter += dt.asSeconds();
-        textDTime.setString(std::to_string(limiter));
+        inputLimiter += dt.asSeconds();
+        frameLimiter += dt.asSeconds();
+        
+        textDTime.setString(std::to_string(inputLimiter));
         mouseScreenPosition = sf::Vector2f(sf::Mouse::getPosition(window));
         
         sf::Event event;
@@ -344,7 +349,7 @@ int main(){
             else if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::BackSpace) {
                     if (!(*editString).empty())
-                        (*editString).pop_back();
+                    (*editString).pop_back();
                 }
                 if (event.key.code == sf::Keyboard::Space) {
                     *editString += (char) ' ';
@@ -360,7 +365,7 @@ int main(){
                 tB->CheckInput(v);
                 editingText = false;
             }
-            if(limiter >= limiterMax){
+            if(inputLimiter >= inputLimiterMax){
                 std::cout << "Debug------------------------------------------" << std::endl;
                 
                 std::cout << "tileMapName: " <<  tileMapName << ", spriteSheetName: " << spriteSheetName << std::endl;
@@ -377,7 +382,7 @@ int main(){
             window.close();
         }
         if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
-            if(limiter >= limiterMax){
+            if(inputLimiter >= inputLimiterMax){
                 int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
                 if(temp != -1){//Tile erasing
                     sf::Vector2i i = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y);
@@ -394,7 +399,7 @@ int main(){
         }
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            if(limiter >= limiterMax){
+            if(inputLimiter >= inputLimiterMax){
                 if(tileMapData.size() > 0){//Tile painting
                     int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
                     if(temp != -1){
@@ -473,34 +478,37 @@ int main(){
             mouseDown = false;
         }
         
-        window.clear();
-        
-        window.draw(spriteBackground);
-        
-        for(TextBox* tB : textBoxes){//Draw all the text Boxses
-            window.draw(tB->getSprite());
-            window.draw(tB->getText());
+        if(frameLimiter >= frameLimiterMax){
+            window.clear();
+            
+            window.draw(spriteBackground);
+            
+            for(TextBox* tB : textBoxes){//Draw all the text Boxses
+                window.draw(tB->getSprite());
+                window.draw(tB->getText());
+            }
+            
+            for(TextBox* tB : buttons){//Draw all the text Buttons
+                window.draw(tB->getSprite());
+                window.draw(tB->getText());
+            }
+            
+            for(sf::Sprite s : selectionSprites) 
+                window.draw(s);
+            
+            for(sf::Sprite s : tileMapVisuals)
+                window.draw(s);
+            
+            for(sf::Text t : descText)
+                window.draw(t);
+            
+            //window.draw(textDTime);
+            window.display();
+            frameLimiter = 0;
         }
-        
-        for(TextBox* tB : buttons){//Draw all the text Buttons
-            window.draw(tB->getSprite());
-            window.draw(tB->getText());
-        }
-        
-        for(sf::Sprite s : selectionSprites) 
-            window.draw(s);
-        
-        for(sf::Sprite s : tileMapVisuals)
-            window.draw(s);
-        
-        for(sf::Text t : descText)
-            window.draw(t);
-        
-        //window.draw(textDTime);
-        window.display();
         
         if(resetLimiter){
-            limiter = 0;
+            inputLimiter = 0;
             resetLimiter = false;
         }
     }
