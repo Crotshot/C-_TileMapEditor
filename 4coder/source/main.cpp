@@ -213,8 +213,8 @@ int main(){
     tileSizeX = new TextBox(*tileSizeX, 61, 33, true,"Textures/TextBoxHalf.png");
     tileSizeY = new TextBox(*tileSizeY, 61, 33, true,"Textures/TextBoxHalf.png");
     
-    jsonBox->GenerateTextBox(20,20, 16, sf::Color::Black);
-    spriteSheetBox->GenerateTextBox(157,20, 16, sf::Color::Black);
+    jsonBox->GenerateTextBox(20,24, 16, sf::Color::Black);
+    spriteSheetBox->GenerateTextBox(157,24, 16, sf::Color::Black);
     tileRows->GenerateTextBox(20,85, 26, sf::Color::Black);
     tileColumns->GenerateTextBox(86,85, 26, sf::Color::Black);
     tileSizeX->GenerateTextBox(152,85, 26, sf::Color::Black);
@@ -229,8 +229,42 @@ int main(){
     textBoxes.push_back(tileSizeX);
     textBoxes.push_back(tileSizeY);
     //--------------------------------------------------------
+    //Text above text boxes
+    sf::Text textMapName;
+    sf::Text textSpriteSheet;
+    sf::Text textColsRows;
+    sf::Text textpWpH;
     
+    textMapName.setFont(F_alagard);
+    textSpriteSheet.setFont(F_alagard);
+    textColsRows.setFont(F_alagard);
+    textpWpH.setFont(F_alagard);
     
+    textMapName.setString("Tile Map Name");
+    textSpriteSheet.setString("Sprite Sheet Name");
+    textColsRows.setString("Rows / Cols");
+    textpWpH.setString("Pixel Width / Height");
+    
+    textMapName.setCharacterSize(12);
+    textSpriteSheet.setCharacterSize(12);
+    textColsRows.setCharacterSize(12);
+    textpWpH.setCharacterSize(12);
+    
+    textMapName.setFillColor(sf::Color::Green);
+    textSpriteSheet.setFillColor(sf::Color::Green);
+    textColsRows.setFillColor(sf::Color::Green);
+    textpWpH.setFillColor(sf::Color::Green);
+    
+    textMapName.setPosition(42,12);
+    textSpriteSheet.setPosition(160,12);
+    textColsRows.setPosition(50,72);
+    textpWpH.setPosition(150,72);
+    
+    std::vector<sf::Text> descText;
+    descText.push_back(textMapName);
+    descText.push_back(textSpriteSheet);
+    descText.push_back(textColsRows);
+    descText.push_back(textpWpH);
     //-------------------------------------------------------
     //Set up for Save and oad buttons;
     TextBox* saveButton = new TextBox();
@@ -459,7 +493,10 @@ int main(){
         for(sf::Sprite s : tileMapVisuals)
             window.draw(s);
         
-        window.draw(textDTime);
+        for(sf::Text t : descText)
+            window.draw(t);
+        
+        //window.draw(textDTime);
         window.display();
         
         if(resetLimiter){
