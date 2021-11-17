@@ -17,7 +17,7 @@ const float inputLimiterMax = 0.0625;
 float inputLimiter = 0; //Reduces the frequaency that left/right mouse and return key input to inputLimiterMax/1second
 
 const float frameLimiterMax = 0.0333;
-float frameLimter = 0; //Limits the refresh rate of the application;
+float frameLimiter = 0; //Limits the refresh rate of the application;
 
 std::string tileMapName, spriteSheetName;
 unsigned int ssRows, ssColumns, tilePixelWidth, tilePixelHeight; //Data input by the text boxes
@@ -349,7 +349,7 @@ int main(){
             else if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::BackSpace) {
                     if (!(*editString).empty())
-                    (*editString).pop_back();
+                        (*editString).pop_back();
                 }
                 if (event.key.code == sf::Keyboard::Space) {
                     *editString += (char) ' ';
