@@ -8,8 +8,7 @@ Before making any tilemaps to add your own images to paint with simply add any .
 
 ## Creating A New Tile Map
 First enter a name for the tile map followed by the name of the png file you want to use as the palette. Then enter how many rows and columns the map will use and finally enter the pixel width and height of the tiles in the png file. Then click load, this should open a scaled black box in the painting area and a scaled version of your png image in the selection area.
-![](url =widthxheight)
-![Creation](/Images/4.png = 400x200)
+![Creation](/Images/4.png)
 
 ### Painting 
 Simply left click on a tile in the selection area to select it and then left click/drag to paint tiles in the painting view.
