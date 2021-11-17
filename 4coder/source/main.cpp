@@ -73,6 +73,7 @@ void Save(){ //In Save() and Load() no need to type .json or .png as it will aut
         std::cout << "No tile map name entered, please enter a tilemap name." << std::endl;
 }
 
+float selectionGridScale;
 void selectionGridSetUp(){
     if(spriteSheetName.length() > 0){
         std::cout << "Loading "<< spriteSheetName <<".png" << std::endl;
@@ -89,11 +90,14 @@ void selectionGridSetUp(){
             std::cout << "Debug SheetRows: "<< sheetRows << ", " << spriteSheet.getSize().y << ", "<< tilePixelHeight << std::endl;
             selectionGrid->GenerateSensorGrid(selectAreaPosition.x, selectAreaPosition.y, sheetRows, sheetCols, tilePixelWidth, tilePixelHeight);
             selectionSprites.clear();
+            selectionGrid->applyScale(selectAreaSize.x, selectAreaSize.y);
+            selectionGridScale = selectionGrid->getScale();
             
             for(unsigned int y = 0; y < sheetRows; y++){
                 for(unsigned int x = 0; x < sheetCols; x++){
                     selectionSprites.push_back( sf::Sprite(spriteSheet,sf::IntRect(tilePixelWidth * x, tilePixelHeight * y, tilePixelWidth, tilePixelHeight)));
-                    selectionSprites.back().setPosition(selectAreaPosition.x + tilePixelWidth * x, selectAreaPosition.y + tilePixelHeight * y);
+                    selectionSprites.back().setPosition(selectAreaPosition.x + (tilePixelWidth * x) * selectionGridScale, selectAreaPosition.y + (tilePixelHeight * y) * selectionGridScale);
+                    selectionSprites.back().scale(selectionGridScale, selectionGridScale);
                 }
             }
         }
@@ -342,12 +346,12 @@ int main(){
             if(limiter >= limiterMax){
                 int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
                 if(temp != -1){//Tile erasing
-                    sf::Vector2i vTemp = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, true);
+                    sf::Vector2i i = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y);
                     editTileIndex = temp;
                     tileMapData[editTileIndex] = -1;
                     sf::Sprite tile(spriteSheet,sf::IntRect(0,0,tilePixelWidth, tilePixelHeight));
                     tile.setColor(sf::Color::Black);
-                    tile.setPosition(vTemp.x, vTemp.y);
+                    tile.setPosition(paintAreaPosition.x + (i.x * tilePixelWidth) * paintedTileScale, paintAreaPosition.y + (i.y * tilePixelHeight) * paintedTileScale);
                     tile.scale(paintedTileScale,paintedTileScale);
                     tileMapVisuals[editTileIndex] = tile;
                     resetLimiter = true;
@@ -360,12 +364,11 @@ int main(){
                 if(tileMapData.size() > 0){//Tile painting
                     int temp = paintingGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
                     if(temp != -1){
-                        sf::Vector2i vTemp = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, true);
-                        sf::Vector2i iTemp = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, false);
+                        sf::Vector2i i = paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y);
                         
                         editTileIndex = temp;
                         sf::Sprite tile(spriteSheet,sf::IntRect(tilePixelWidth * selectedTileV2.x, tilePixelHeight * selectedTileV2.y, tilePixelWidth, tilePixelHeight));
-                        tile.setPosition(vTemp.x, vTemp.y);
+                        tile.setPosition(paintAreaPosition.x + (i.x * tilePixelWidth) * paintedTileScale, paintAreaPosition.y + (i.y * tilePixelHeight) * paintedTileScale);
                         tile.scale(paintedTileScale,paintedTileScale);
                         tileMapData[editTileIndex] = selectedTile;
                         tileMapVisuals[editTileIndex] = tile;
@@ -377,13 +380,13 @@ int main(){
                 if(!mouseDown){
                     //---------------------------------------------------
                     //Debugging Sensor Grids
-                    sf::Vector2i sGridV= selectionGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, false);
-                    sf::Vector2i pGridV= paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, false);
+                    sf::Vector2i sGridV= selectionGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y);
+                    sf::Vector2i pGridV= paintingGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y);
                     
                     if(sGridV.x != -1){
                         //Assigning tile to paint with
                         selectedTile = selectionGrid->ClickCheckInt(mouseScreenPosition.x, mouseScreenPosition.y);
-                        selectedTileV2 = selectionGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y, false);
+                        selectedTileV2 = selectionGrid->ClickCheckVectorInt(mouseScreenPosition.x, mouseScreenPosition.y);
                         
                         std::cout << "Debug: Touched selectionGrid at pos: (" << mouseScreenPosition.x << ", " << mouseScreenPosition.y << "), the index was " << selectedTile << std::endl; 
                         std::cout << "Debug: (" << sGridV.x << ", " << sGridV.y << ")" << std::endl;

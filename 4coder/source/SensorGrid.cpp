@@ -44,7 +44,7 @@ int SensorGrid::ClickCheckInt(float inputX, float inputY){
 }
 
 //Gets top left of box by position, bool pixels whether to return index postion in 2D or coordinate position of box
-sf::Vector2i SensorGrid::ClickCheckVectorInt(float inputX, float inputY, bool pixels){
+sf::Vector2i SensorGrid::ClickCheckVectorInt(float inputX, float inputY){
     //Formula : y * cols + x = 1D index
     
     if(inputX < posX || inputX > posX + width  * scale || inputY < posY || inputY > posY + height * scale)
@@ -65,12 +65,6 @@ sf::Vector2i SensorGrid::ClickCheckVectorInt(float inputX, float inputY, bool pi
             break;
         y += (pHeight/* * scale*/);
         y_index++;
-    }
-    
-    
-    if(pixels){
-        x_index = (int)(((float)x_index) * (pWidth/* * scale*/) + posX);
-        y_index = (int)(((float)y_index) * (pHeight/* * scale*/) + posY);
     }
     return sf::Vector2i(x_index, y_index);
 }
