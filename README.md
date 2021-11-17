@@ -28,3 +28,7 @@ To load a tile map all you have to do is enter the name of the tile map and clic
 ![Creation](/Images/1.png)
 ### After load:
 ![Creation](/Images/2.png)
+
+
+
+In the current version the program does not support multiple layers or transparency and only supports images in png format
